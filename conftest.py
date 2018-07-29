@@ -35,27 +35,35 @@ def db():
     return pw.SqliteDatabase(':memory:', autocommit=False)
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def models(db):
-    from src import models
-    models.db = db
-    models.db.connect()
+    """Emulate the transaction -- create a new db before each test and flush it after.
 
-    models.db.create_table(models.User, safe=True)
+    Also, return the app.models module"""
+    from src import models
+    app_models = [models.User]
+
+    db.bind(app_models, bind_refs=False, bind_backrefs=False)
+    db.connect()
+    db.create_tables(app_models)
 
     yield models
-    models.db.drop_table(models.User)
-    models.db.close()
+
+    db.drop_tables(app_models)
+    db.close()
 
 
 @pytest.fixture
-def app():
+def app(bot):
+    """Our bot app, adds the magic curring `call` method to call it with fake bot"""
     from src import app
+    setattr(app, 'call', lambda method, *args, **kwargs: getattr(app, method)(bot, *args, **kwargs))
     return app
 
 
 @pytest.fixture
 def bot():
+    """Mocked instance of the bot"""
     class Bot:
         send_message = MagicMock()
 
@@ -65,24 +73,20 @@ def bot():
 @pytest.fixture
 def user():
     """telegram.User"""
-    def get_user(**kwargs):
-        class User(factory(
-            'User',
-            id='__randint',
-            is_bot=False,
-            first_name=faker.first_name(),
-            last_name=faker.last_name(),
-            username=faker.user_name(),
-            **kwargs,
-        )):
+    class User(factory(
+        'User',
+        id='__randint',
+        is_bot=False,
+        first_name=faker.first_name(),
+        last_name=faker.last_name(),
+        username=faker.user_name(),
+    )):
 
-            @property
-            def full_name(self):
-                return f'{self.first_name} {self.last_name}'
+        @property
+        def full_name(self):
+            return f'{self.first_name} {self.last_name}'
 
-        return User
-
-    return get_user
+    return User
 
 
 @pytest.fixture
