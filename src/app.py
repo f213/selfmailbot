@@ -5,8 +5,8 @@ from telegram import Message, Update
 from telegram.ext import CommandHandler, MessageHandler, Updater
 from telegram.ext.filters import BaseFilter, Filters
 
-from models import create_tables, get_user_instance, with_user
-from tpl import get_template
+from .models import User, create_tables, get_user_instance, with_user
+from .tpl import get_template
 
 env.read_envfile()
 logging.basicConfig(level=logging.DEBUG,

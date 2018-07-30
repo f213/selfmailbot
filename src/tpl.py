@@ -1,7 +1,7 @@
 from jinja2 import Environment, FileSystemLoader, Template
 
 env = Environment(
-    loader=FileSystemLoader('./templates'),
+    loader=FileSystemLoader('./src/templates'),
 )
 
 
