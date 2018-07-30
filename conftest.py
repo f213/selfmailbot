@@ -67,7 +67,7 @@ def bot():
     class Bot:
         send_message = MagicMock()
 
-    return Bot
+    return Bot()
 
 
 @pytest.fixture
@@ -86,7 +86,7 @@ def user():
         def full_name(self):
             return f'{self.first_name} {self.last_name}'
 
-    return User
+    return User()
 
 
 @pytest.fixture
@@ -96,7 +96,7 @@ def message():
         'Message',
         chat_id='__randint',
         **kwargs,
-    )
+    )()
 
 
 @pytest.fixture
@@ -105,5 +105,5 @@ def update(message, user):
     return factory(
         'Update',
         update_id='__randint',
-        message=message(from_user=user()),
-    )
+        message=message(from_user=user),
+    )()

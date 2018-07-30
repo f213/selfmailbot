@@ -14,28 +14,32 @@ logging.basicConfig(level=logging.DEBUG,
 
 
 @with_user
-def start(bot, update: Update, user):
+def start(bot, update: Update, user: User):
     bot.send_message(chat_id=update.message.chat_id, text=f'Your id is {user.id} and name is {user.full_name}')
 
 
 @with_user
-def send_text_message(bot, update: Update, user):
+def send_text_message(bot, update: Update, user: User):
     bot.send_message(chat_id=update.message.chat_id, text='Ok, sending text msg')
 
 
 @with_user
-def send_photo(bot, update: Update, user):
+def send_photo(bot, update: Update, user: User):
     bot.send_message(chat_id=update.message.chat_id, text='Ok, sending photo')
 
 
 @with_user
-def prompt_for_setting_email(bot, update: Update, user):
+def prompt_for_setting_email(bot, update: Update, user: User):
     bot.send_message(chat_id=update.message.chat_id, text=get_template('messages/please_send_email.txt').render())
 
 
 @with_user
-def send_confirmation(bot, update: Update, user):
+def send_confirmation(bot, update: Update, user: User):
     email = update.message.text.strip()
+
+    if User.select().where(User.email == email):
+        bot.send_message(chat_id=update.message.chat_id, text=get_template('messages/email_is_occupied.txt').render())
+        return
 
     bot.send_message(chat_id=update.message.chat_id, text=f'ok, email {email}')
 

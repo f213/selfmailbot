@@ -9,7 +9,7 @@ db = connect(env('DATABASE_URL', cast=str, default='sqlite:///db.sqlite'))
 
 
 class User(pw.Model):
-    id = pw.BigIntegerField(index=True, unique=True)
+    pk = pw.BigIntegerField(index=True, unique=True)
     created = pw.DateTimeField(constraints=[pw.SQL('DEFAULT CURRENT_TIMESTAMP')])
     full_name = pw.CharField()
     username = pw.CharField(null=True)
@@ -23,8 +23,9 @@ class User(pw.Model):
 
 def get_user_instance(user: telegram.User) -> User:
     instance, created = User.get_or_create(
-        id=user.id,
+        pk=user.id,
         defaults=dict(
+            pk=user.id,
             full_name=user.full_name,
             username=user.username,
         ),
