@@ -40,7 +40,7 @@ def models(db):
     """Emulate the transaction -- create a new db before each test and flush it after.
 
     Also, return the app.models module"""
-    from src import models
+    from . import models
     app_models = [models.User]
 
     db.bind(app_models, bind_refs=False, bind_backrefs=False)
@@ -56,7 +56,7 @@ def models(db):
 @pytest.fixture
 def app(bot):
     """Our bot app, adds the magic curring `call` method to call it with fake bot"""
-    from src import app
+    from . import app
     setattr(app, 'call', lambda method, *args, **kwargs: getattr(app, method)(bot, *args, **kwargs))
     return app
 

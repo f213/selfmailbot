@@ -8,6 +8,7 @@ def test_user_creation(app, update, models, user):
     app.call('start', update)
 
     saved = models.User.get(id=user.id)
+
     assert saved.id == user.id
     assert saved.full_name == f'{user.first_name} {user.last_name}'
     assert saved.is_confirmed is False
