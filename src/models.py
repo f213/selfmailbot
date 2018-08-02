@@ -1,3 +1,5 @@
+import uuid
+
 import peewee as pw
 import telegram
 from envparse import env
@@ -16,6 +18,7 @@ class User(pw.Model):
     email = pw.CharField(index=True, null=True)
     is_confirmed = pw.BooleanField(default=False, index=True)
     sent_message_count = pw.IntegerField(default=0)
+    confirmation = pw.CharField(max_length=36, index=True)
 
     class Meta:
         database = db
@@ -28,6 +31,7 @@ def get_user_instance(user: telegram.User) -> User:
             pk=user.id,
             full_name=user.full_name,
             username=user.username,
+            confirmation=uuid.uuid4(),
         ),
     )
     return instance

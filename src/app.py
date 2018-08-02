@@ -5,6 +5,7 @@ from telegram import Message, Update
 from telegram.ext import CommandHandler, MessageHandler, Updater
 from telegram.ext.filters import BaseFilter, Filters
 
+from .mail import send_mail
 from .models import User, create_tables, get_user_instance, with_user
 from .tpl import get_template
 
@@ -41,12 +42,20 @@ def send_confirmation(bot, update: Update, user: User):
         bot.send_message(chat_id=update.message.chat_id, text=get_template('messages/email_is_occupied.txt').render())
         return
 
+    user.email = email
+    user.save()
     bot.send_message(chat_id=update.message.chat_id, text=f'ok, email {email}')
 
 
 @with_user
 def prompt_for_confirm(bot, update: Update, user):
-    bot.send_message(chat_id=update.message.chat_id, text='Please confirm email')
+    send_mail(
+        to=user.email,
+        subject='[Selfmailbot] Please confirm your email',
+        user_id=user.id,
+        text=get_template('email/confirmation.txt').render(user=user),
+    )
+    bot.send_message(chat_id=update.message.chat_id, text=f'Confirmation message is sent to {user.email}. Click the link from it, and we are all set up!')
 
 
 class ConfirmedUserFilter(BaseFilter):
