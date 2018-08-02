@@ -1,7 +1,7 @@
 import logging
 
 from envparse import env
-from telegram import Message, Update
+from telegram import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import CommandHandler, MessageHandler, Updater
 from telegram.ext.filters import BaseFilter, Filters
 
@@ -30,6 +30,20 @@ def reply(fn):
 @reply
 def start(bot, update: Update, user: User, **kwargs):
     update.message.reply_text(text=f'Your id is {user.id} and name is {user.full_name}')
+
+
+@reply
+def resend(bot, update: Update, user, render):
+    send_confirmation_mail(user)
+    update.message.reply_text(text=render('confirmation_message_is_sent'), reply_markup=ReplyKeyboardRemove())
+
+
+@reply
+def reset_email(bot, update: Update, user, render):
+    user.email = None
+    user.save()
+
+    update.message.reply_text(text=render('email_is_reset'), reply_markup=ReplyKeyboardRemove())
 
 
 @reply
@@ -64,9 +78,9 @@ def send_confirmation(bot, update: Update, user: User, render):
 
 
 @reply
-def prompt_for_confirm(bot, update: Update, user, render):
-    send_confirmation_mail(user)
-    update.message.reply_text(text=render('confirmation_message_is_sent'))
+def prompt_for_confirm(bot, update: Update, user: User, render):
+    reply_markup = ReplyKeyboardMarkup([['Resend confirmation email'], ['Change email']])
+    update.message.reply_text(render('waiting_for_confirmation'), reply_markup=reply_markup)
 
 
 class ConfirmedUserFilter(BaseFilter):
@@ -91,7 +105,9 @@ updater = Updater(token=env('BOT_TOKEN'))
 dispatcher = updater.dispatcher
 
 dispatcher.add_handler(CommandHandler('start', start))
-dispatcher.add_handler(MessageHandler(UserWithoutEmailFilter() & Filters.text & Filters.regex('@'), send_confirmation))
+dispatcher.add_handler(MessageHandler(UserWithoutEmailFilter() & Filters.text & Filters.regex('@'), send_confirmation))  # looks like email, so send confirmation to it
+dispatcher.add_handler(MessageHandler(NonConfirmedUserFilter() & Filters.text & Filters.regex('Resend confirmation email'), resend))  # resend confirmation email
+dispatcher.add_handler(MessageHandler(NonConfirmedUserFilter() & Filters.text & Filters.regex('Change email'), reset_email))  # change email
 dispatcher.add_handler(MessageHandler(UserWithoutEmailFilter(), prompt_for_setting_email))
 dispatcher.add_handler(MessageHandler(NonConfirmedUserFilter(), prompt_for_confirm))
 dispatcher.add_handler(MessageHandler(ConfirmedUserFilter() & Filters.text, send_text_message))

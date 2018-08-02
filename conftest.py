@@ -79,7 +79,7 @@ def app():
 
 
 @pytest.fixture
-def user():
+def tg_user():
     """telegram.User"""
     class User(factory(
         'User',
@@ -120,10 +120,10 @@ def message():
 
 
 @pytest.fixture
-def update(message, user):
+def update(message, tg_user):
     """telegram.Update"""
     return factory(
         'Update',
         update_id='__randint',
-        message=message(from_user=user),
+        message=message(from_user=tg_user),
     )()

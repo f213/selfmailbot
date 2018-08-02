@@ -2,9 +2,9 @@ import pytest
 
 
 @pytest.fixture
-def create_user_from_tg(models, user):
+def create_user_from_tg(models, tg_user):
     def _create(**kwargs):
-        created = models.get_user_instance(user)
+        created = models.get_user_instance(tg_user)
 
         for key, value in kwargs.items():
             setattr(created, key, value)
@@ -15,19 +15,19 @@ def create_user_from_tg(models, user):
     return _create
 
 
-def test(bot_app, bot, update):
+def test(bot_app, update):
     bot_app.call('start', update)
 
     assert update.message.reply_text.called
 
 
-def test_user_creation(bot_app, update, models, user):
+def test_user_creation(bot_app, update, models, tg_user):
     bot_app.call('start', update)
 
-    saved = models.User.get(pk=user.id)
+    saved = models.User.get(pk=tg_user.id)
 
-    assert saved.pk == user.id
-    assert saved.full_name == f'{user.first_name} {user.last_name}'
+    assert saved.pk == tg_user.id
+    assert saved.full_name == f'{tg_user.first_name} {tg_user.last_name}'
     assert saved.is_confirmed is False
     assert saved.email is None
 

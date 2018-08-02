@@ -6,7 +6,7 @@ def send_mail(mocker):
     return mocker.patch('src.app.send_confirmation_mail')
 
 
-def test_occupied_email(bot_app, update, bot, db_user):
+def test_occupied_email(bot_app, update, db_user):
     db_user(email='occu@pie.d')
     update.message.text = 'occu@pie.d'
 
@@ -16,7 +16,7 @@ def test_occupied_email(bot_app, update, bot, db_user):
     assert 'occupied' in msg
 
 
-def test_email_is_not_sent_to_occupied_one(bot_app, update, bot, db_user, send_mail):
+def test_email_is_not_sent_to_occupied_one(bot_app, update, db_user, send_mail):
     db_user(email='occu@pie.d')
     update.message.text = 'occu@pie.d'
 
@@ -33,7 +33,7 @@ def test_ok(bot_app, update, bot, send_mail):
     assert send_mail.called
 
 
-def test_email_is_sent_to_correct_user(bot_app, update, bot, send_mail, models):
+def test_email_is_sent_to_correct_user(bot_app, update, send_mail, models):
     user = models.get_user_instance(update.message.from_user)
     update.message.text = 'ok@e.mail'
 
@@ -42,7 +42,7 @@ def test_email_is_sent_to_correct_user(bot_app, update, bot, send_mail, models):
     send_mail.assert_called_once_with(user)
 
 
-def test_email_is_updated(bot_app, update, bot, send_mail, models):
+def test_email_is_updated(bot_app, update, send_mail, models):
     user = models.get_user_instance(update.message.from_user)
     update.message.text = 'ok@e.mail'
 
