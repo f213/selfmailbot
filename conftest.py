@@ -1,3 +1,4 @@
+import uuid
 from random import randint
 from unittest.mock import MagicMock
 
@@ -54,7 +55,7 @@ def models(db):
 
 
 @pytest.fixture
-def app(bot):
+def bot_app(bot):
     """Our bot app, adds the magic curring `call` method to call it with fake bot"""
     from src import app
     setattr(app, 'call', lambda method, *args, **kwargs: getattr(app, method)(bot, *args, **kwargs))
@@ -68,6 +69,13 @@ def bot():
         send_message = MagicMock()
 
     return Bot()
+
+
+@pytest.fixture
+def app():
+    from src.web import app
+    app.testing = True
+    return app
 
 
 @pytest.fixture
@@ -87,6 +95,17 @@ def user():
             return f'{self.first_name} {self.last_name}'
 
     return User()
+
+
+@pytest.fixture
+def db_user(models):
+    return lambda **kwargs: models.User.create(**{**dict(
+        pk=randint(100_000_000, 999_999_999),
+        is_confirmed=False,
+        email='user@e.mail',
+        full_name='Petrovich',
+        confirmation=uuid.uuid4(),
+    ), **kwargs})
 
 
 @pytest.fixture

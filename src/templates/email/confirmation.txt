@@ -1,5 +1,5 @@
 Hey!
 
-To confirm your email with selfmailbot, please click the following link: https://selfmailbot.co/confirm/{{ user.confirmation }}/.
+To confirm your email with selfmailbot, please click the following link: https://selfmailbot.co/confirm/{{ user.'confirmation }}/.
 
 Have a nice day!

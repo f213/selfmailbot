@@ -10,10 +10,10 @@ def db_user(user, models):
     return db_user
 
 
-def test_occupied_email(app, update, bot, models, db_user):
+def test_occupied_email(bot_app, update, bot, models, db_user):
     update.message.text = 'occu@pie.d'
 
-    app.call('send_confirmation', update)
+    bot_app.call('send_confirmation', update)
 
     msg = bot.send_message.call_args[1]['text']
 

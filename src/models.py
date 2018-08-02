@@ -37,6 +37,13 @@ def get_user_instance(user: telegram.User) -> User:
     return instance
 
 
+def get_user_by_confirmation_link(link) -> User:
+    try:
+        return User.get(User.confirmation == link)
+    except User.DoesNotExist:
+        pass
+
+
 def with_user(fn):
     """Decorator to add kwarg with registered user instance to the telegram.ext handler"""
     def call(bot, update, *args, **kwargs):
