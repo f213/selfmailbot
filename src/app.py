@@ -6,25 +6,12 @@ from telegram.ext import CommandHandler, MessageHandler, Updater
 from telegram.ext.filters import BaseFilter, Filters
 
 from .celery import send_confirmation_mail
-from .models import User, create_tables, get_user_instance, with_user
-from .tpl import get_template
+from .helpers import reply
+from .models import User, create_tables, get_user_instance
 
 env.read_envfile()
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-
-def reply(fn):
-    """Add a with_user decorator and a render function with additional ctx"""
-
-    def _call(*args, user, **kwargs):
-        def render(tpl: str, **kwargs):
-            template = get_template('messages/' + tpl + '.txt')
-            return template.render(user=user, **kwargs)
-
-        return fn(*args, **kwargs, user=user, render=render)
-
-    return with_user(_call)
 
 
 @reply
