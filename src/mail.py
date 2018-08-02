@@ -1,6 +1,8 @@
 import requests
 from envparse import env
 
+from .tpl import get_template
+
 env.read_envfile()
 
 
@@ -30,3 +32,12 @@ def send_mail(to, subject, text, user_id):
         'text': text,
         'h:X-telegram-id': user_id,
     })
+
+
+def send_confirmation_mail(user: 'User'):
+    return send_mail(
+        to=user.email,
+        subject='[Selfmailbot] Please confirm your email',
+        user_id=user.id,
+        text=get_template('email/confirmation.txt').render(user=user),
+    )

@@ -114,6 +114,7 @@ def message():
     return lambda **kwargs: factory(
         'Message',
         chat_id='__randint',
+        reply_text=MagicMock(),
         **kwargs,
     )()
 

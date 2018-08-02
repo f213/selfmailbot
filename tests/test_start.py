@@ -18,7 +18,7 @@ def create_user_from_tg(models, user):
 def test(bot_app, bot, update):
     bot_app.call('start', update)
 
-    assert bot.send_message.called
+    assert update.message.reply_text.called
 
 
 def test_user_creation(bot_app, update, models, user):

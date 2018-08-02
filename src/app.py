@@ -5,7 +5,7 @@ from telegram import Message, Update
 from telegram.ext import CommandHandler, MessageHandler, Updater
 from telegram.ext.filters import BaseFilter, Filters
 
-from .mail import send_mail
+from .mail import send_confirmation_mail
 from .models import User, create_tables, get_user_instance, with_user
 from .tpl import get_template
 
@@ -14,48 +14,59 @@ logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
-@with_user
-def start(bot, update: Update, user: User):
-    bot.send_message(chat_id=update.message.chat_id, text=f'Your id is {user.id} and name is {user.full_name}')
+def reply(fn):
+    """Add a with_user decorator and a render function with additional ctx"""
+
+    def _call(*args, user, **kwargs):
+        def render(tpl: str, **kwargs):
+            template = get_template('messages/' + tpl + '.txt')
+            return template.render(user=user, **kwargs)
+
+        return fn(*args, **kwargs, user=user, render=render)
+
+    return with_user(_call)
 
 
-@with_user
-def send_text_message(bot, update: Update, user: User):
-    bot.send_message(chat_id=update.message.chat_id, text='Ok, sending text msg')
+@reply
+def start(bot, update: Update, user: User, **kwargs):
+    update.message.reply_text(text=f'Your id is {user.id} and name is {user.full_name}')
 
 
-@with_user
-def send_photo(bot, update: Update, user: User):
-    bot.send_message(chat_id=update.message.chat_id, text='Ok, sending photo')
+@reply
+def send_text_message(bot, update: Update, user: User, **kwargs):
+    update.message.reply_text(text='Ok, sending text msg')
 
 
-@with_user
-def prompt_for_setting_email(bot, update: Update, user: User):
-    bot.send_message(chat_id=update.message.chat_id, text=get_template('messages/please_send_email.txt').render())
+@reply
+def send_photo(bot, update: Update, user: User, **kwargs):
+    update.message.reply_text(text='Ok, sending photo')
 
 
-@with_user
-def send_confirmation(bot, update: Update, user: User):
+@reply
+def prompt_for_setting_email(bot, update: Update, user: User, render):
+    update.message.reply_text(text=render('please_send_email'))
+
+
+@reply
+def send_confirmation(bot, update: Update, user: User, render):
     email = update.message.text.strip()
 
     if User.select().where(User.email == email):
-        bot.send_message(chat_id=update.message.chat_id, text=get_template('messages/email_is_occupied.txt').render())
+        update.message.reply_text(text=render('email_is_occupied'))
         return
 
     user.email = email
     user.save()
-    bot.send_message(chat_id=update.message.chat_id, text=f'ok, email {email}')
+
+    send_confirmation_mail(user)
+
+    update.message.reply_text(text=render('confirmation_message_is_sent'))
 
 
-@with_user
-def prompt_for_confirm(bot, update: Update, user):
-    send_mail(
-        to=user.email,
-        subject='[Selfmailbot] Please confirm your email',
-        user_id=user.id,
-        text=get_template('email/confirmation.txt').render(user=user),
-    )
-    bot.send_message(chat_id=update.message.chat_id, text=f'Confirmation message is sent to {user.email}. Click the link from it, and we are all set up!')
+@reply
+def prompt_for_confirm(bot, update: Update, user, render):
+    send_confirmation_mail(user)
+    update.message.reply_text(text=render('confirmation_message_is_sent'))
 
 
 class ConfirmedUserFilter(BaseFilter):

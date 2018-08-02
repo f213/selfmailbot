@@ -1,1 +1,1 @@
-Confirmation linke is sent to your email {{ user.email }}. Please click it, to start using the bot.
+Confirmation link is sent to your email {{ user.email }}. Please click it, to start using the bot.
