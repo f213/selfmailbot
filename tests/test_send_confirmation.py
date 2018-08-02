@@ -3,7 +3,7 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def send_mail(mocker):
-    return mocker.patch('src.app.send_confirmation_mail')
+    return mocker.patch('src.app.send_confirmation_mail.delay')
 
 
 def test_occupied_email(bot_app, update, db_user):
@@ -39,7 +39,7 @@ def test_email_is_sent_to_correct_user(bot_app, update, send_mail, models):
 
     bot_app.call('send_confirmation', update)
 
-    send_mail.assert_called_once_with(user)
+    send_mail.assert_called_once_with(user.pk)
 
 
 def test_email_is_updated(bot_app, update, send_mail, models):

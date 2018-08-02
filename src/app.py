@@ -5,7 +5,7 @@ from telegram import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import CommandHandler, MessageHandler, Updater
 from telegram.ext.filters import BaseFilter, Filters
 
-from .mail import send_confirmation_mail
+from .celery import send_confirmation_mail
 from .models import User, create_tables, get_user_instance, with_user
 from .tpl import get_template
 
@@ -34,7 +34,7 @@ def start(bot, update: Update, user: User, **kwargs):
 
 @reply
 def resend(bot, update: Update, user, render):
-    send_confirmation_mail(user)
+    send_confirmation_mail.delay(user.pk)
     update.message.reply_text(text=render('confirmation_message_is_sent'), reply_markup=ReplyKeyboardRemove())
 
 
@@ -72,7 +72,7 @@ def send_confirmation(bot, update: Update, user: User, render):
     user.email = email
     user.save()
 
-    send_confirmation_mail(user)
+    send_confirmation_mail.delay(user.pk)
 
     update.message.reply_text(text=render('confirmation_message_is_sent'))
 
