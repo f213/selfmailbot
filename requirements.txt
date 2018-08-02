@@ -1,6 +1,7 @@
 atomicwrites==1.1.5
 attrs==18.1.0
 certifi==2018.4.16
+chardet==3.0.4
 click==6.7
 envparse==0.2.0
 Faker==0.8.17
@@ -12,6 +13,7 @@ flake8-polyfill==1.0.2
 flake8-print==3.1.0
 Flask==1.0.2
 future==0.16.0
+idna==2.7
 isort==4.3.4
 itsdangerous==0.24
 Jinja2==2.10
@@ -25,9 +27,13 @@ py==1.5.4
 pycodestyle==2.3.1
 pyflakes==1.6.0
 pytest==3.6.4
+pytest-env==0.6.2
 python-dateutil==2.7.3
 python-telegram-bot==10.1.0
+requests==2.19.1
+requests-mock==1.5.2
 six==1.11.0
 testfixtures==6.2.0
 text-unidecode==1.2
+urllib3==1.23
 Werkzeug==0.14.1
