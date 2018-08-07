@@ -1,0 +1,49 @@
+version: '3.6'
+
+services:
+  bot:
+    image: f213/selfmailbot
+    restart: always
+    command: python -m srv.app
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+    env_file:
+      .env
+
+    links:
+      - redis
+
+  celery-worker:
+    image: f213/selfmailbot
+    restart: always
+    command: celery -A srv.celery worker
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+    env_file:
+      .env
+
+    links:
+      - redis
+
+  celery-flower:
+    image: f213/selfmailbot
+    restart: always
+    command: celery -A srv.celery flower
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+
+    links:
+      - redis
+
+  web:
+    image: f213/selfmailbot
+    restart: always
+    command: uwsgi --http :8000 --module srv.web:app --workers 2 --threads 2
+    env_file:
+      .env
+
+  redis:
+    image: redis:4-alpine
+
+  nginx:
+    image: nginx:alpine
