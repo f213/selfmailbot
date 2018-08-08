@@ -36,12 +36,19 @@ def reset_email(bot, update: Update, user, render):
 @reply
 def send_text_message(bot, update: Update, user: User, render, **kwargs):
     text = update.message.text
+    subject = get_subject(text)
+
+    message = update.message.reply_text(text=render('message_is_sent'))
+
     send_text.delay(
         user_id=user.pk,
-        subject=get_subject(text),
+        subject=subject,
         text=text,
+        variables=dict(
+            message_id=message.message_id,
+            chat_id=update.message.chat_id,
+        ),
     )
-    update.message.reply_text(text=render('message_is_sent'))
 
 
 @reply

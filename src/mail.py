@@ -24,13 +24,17 @@ def post(payload):
     return response.json()
 
 
-def send_mail(to, subject, text, user_id):
+def send_mail(to, subject, text, user_id, variables=None):
+    if variables is None:
+        variables = dict()
+
     return post({
         'to': to,
         'from': env('MAILGUN_FROM'),
         'subject': subject,
         'text': text,
         'h:X-telegram-id': user_id,
+        'h:X-Mailgun-Variables': variables,
     })
 
 

@@ -63,7 +63,7 @@ def bot_app(bot):
 
 
 @pytest.fixture
-def bot():
+def bot(message):
     """Mocked instance of the bot"""
     class Bot:
         send_message = MagicMock()
@@ -114,7 +114,7 @@ def message():
     return lambda **kwargs: factory(
         'Message',
         chat_id='__randint',
-        reply_text=MagicMock(),
+        reply_text=MagicMock(return_value=factory(message_id=100800)()),  # always 100800 as the replied message id
         **kwargs,
     )()
 
