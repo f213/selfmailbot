@@ -5,8 +5,8 @@ from telegram import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import CommandHandler, MessageHandler, Updater
 from telegram.ext.filters import BaseFilter, Filters
 
-from .celery import send_confirmation_mail
-from .helpers import reply
+from .celery import send_confirmation_mail, send_text
+from .helpers import get_subject, reply
 from .models import User, create_tables, get_user_instance
 
 env.read_envfile()
@@ -34,8 +34,14 @@ def reset_email(bot, update: Update, user, render):
 
 
 @reply
-def send_text_message(bot, update: Update, user: User, **kwargs):
-    update.message.reply_text(text='Ok, sending text msg')
+def send_text_message(bot, update: Update, user: User, render, **kwargs):
+    text = update.message.text
+    send_text.delay(
+        user_id=user.pk,
+        subject=get_subject(text),
+        text=text,
+    )
+    update.message.reply_text(text=render('message_is_sent'))
 
 
 @reply

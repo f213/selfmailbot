@@ -33,6 +33,6 @@ def send_text(user_id, subject, text):
     send_mail(
         to=user.email,
         subject=subject,
-        user_id=user.id,
+        user_id=user_id,
         text=text,
     )
