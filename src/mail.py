@@ -14,17 +14,21 @@ def get_url():
     return 'https://api.mailgun.net/v3/{}/messages'.format(env('MAILGUN_DOMAIN'))
 
 
-def post(payload):
+def post(payload, attachment=None):
     payload = {key: value for key, value in payload.items() if value is not None and value}
 
-    response = requests.post(get_url(), auth=('api', env('MAILGUN_API_KEY')), data=payload)
+    files = {}
+    if attachment is not None:
+        files = {'inline': attachment}
+
+    response = requests.post(get_url(), auth=('api', env('MAILGUN_API_KEY')), data=payload, files=files)
     if response.status_code != 200:
         raise MailException('Non-200 response from mailgun: {} ({})'.format(response.status_code, response.text))
 
     return response.json()
 
 
-def send_mail(to, subject, text, user_id, variables=None):
+def send_mail(to, subject, text, user_id, variables=None, attachment=None):
     if variables is None:
         variables = dict()
 
@@ -35,7 +39,7 @@ def send_mail(to, subject, text, user_id, variables=None):
         'text': text,
         'h:X-telegram-id': user_id,
         'h:X-Mailgun-Variables': variables,
-    })
+    }, attachment)
 
 
 def send_confirmation_mail(user: 'User'):

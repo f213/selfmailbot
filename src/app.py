@@ -5,8 +5,8 @@ from telegram import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import CommandHandler, MessageHandler, Updater
 from telegram.ext.filters import BaseFilter, Filters
 
-from .celery import send_confirmation_mail, send_text
-from .helpers import get_subject, reply
+from . import celery as tasks
+from .helpers import get_file, get_subject, reply
 from .models import User, create_tables, get_user_instance
 
 env.read_envfile()
@@ -21,7 +21,7 @@ def start(bot, update: Update, user: User, **kwargs):
 
 @reply
 def resend(bot, update: Update, user, render):
-    send_confirmation_mail.delay(user.pk)
+    tasks.send_confirmation_mail.delay(user.pk)
     update.message.reply_text(text=render('confirmation_message_is_sent'), reply_markup=ReplyKeyboardRemove())
 
 
@@ -40,7 +40,7 @@ def send_text_message(bot, update: Update, user: User, render, **kwargs):
 
     message = update.message.reply_text(text=render('message_is_sent'))
 
-    send_text.delay(
+    tasks.send_text.delay(
         user_id=user.pk,
         subject=subject,
         text=text,
@@ -53,7 +53,19 @@ def send_text_message(bot, update: Update, user: User, render, **kwargs):
 
 @reply
 def send_photo(bot, update: Update, user: User, **kwargs):
-    update.message.reply_text(text='Ok, sending photo')
+    file = update.message.photo[-1].get_file()
+    photo = get_file(file)
+
+    message = update.message.reply_text(text=f'Ok, sending photo')
+
+    tasks.send_photo(
+        user_id=user.pk,
+        photo=photo,
+        variables=dict(
+            message_id=message.message_id,
+            chat_id=update.message.chat_id,
+        ),
+    )
 
 
 @reply
@@ -72,7 +84,7 @@ def send_confirmation(bot, update: Update, user: User, render):
     user.email = email
     user.save()
 
-    send_confirmation_mail.delay(user.pk)
+    tasks.send_confirmation_mail.delay(user.pk)
 
     update.message.reply_text(text=render('confirmation_message_is_sent'))
 

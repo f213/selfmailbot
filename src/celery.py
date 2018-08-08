@@ -37,3 +37,17 @@ def send_text(user_id, subject, text, variables=None):
         text=text,
         variables=variables,
     )
+
+
+@celery.task
+def send_photo(user_id, photo, variables=None):
+    user = User.get(User.pk == user_id)
+
+    send_mail(
+        to=user.email,
+        user_id=user_id,
+        text=' ',
+        subject='Photo',
+        variables=variables,
+        attachment=photo,
+    )

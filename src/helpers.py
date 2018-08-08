@@ -1,4 +1,9 @@
 import re
+import uuid
+from io import BytesIO
+from os import path
+
+import telegram
 
 from .models import with_user
 from .tpl import get_template
@@ -37,3 +42,13 @@ def get_subject(text):
         return words[0][:32]
 
     return words[0][:32] + '...'  # first 32 characters
+
+
+def get_file(file: telegram.File) -> BytesIO:
+    attachment = BytesIO()
+    attachment.name = str(uuid.uuid4()) + '.' + path.splitext(file.file_path)[1]
+
+    file.download(out=attachment)
+    attachment.seek(0, 0)
+
+    return attachment

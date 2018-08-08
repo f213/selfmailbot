@@ -3,7 +3,7 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def send_mail(mocker):
-    return mocker.patch('src.app.send_confirmation_mail.delay')
+    return mocker.patch('src.app.tasks.send_confirmation_mail.delay')
 
 
 def test_occupied_email(bot_app, update, db_user):

@@ -3,7 +3,7 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def send_mail(mocker):
-    return mocker.patch('src.app.send_confirmation_mail')
+    return mocker.patch('src.app.tasks.send_confirmation_mail')
 
 
 def test(bot_app, update, models, send_mail):
