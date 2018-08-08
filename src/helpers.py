@@ -17,9 +17,15 @@ def reply(fn):
     return with_user(_call)
 
 
+def capfirst(x):
+    """Capitalize the first letter of a string. Kindly borrowed from Django"""
+    return x and str(x)[0].upper() + str(x)[1:]
+
+
 def get_subject(text):
     """Generate subject based on message text"""
     words = [word.lower() for word in re.split('\s+', text)]
+    words[0] = capfirst(words[0])
 
     if len(words) > 1:
         if len(words) in [2, 3]:
