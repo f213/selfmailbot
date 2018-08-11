@@ -9,13 +9,13 @@ def user(db_user):
 
 
 def test_confirmation_ok(client, user):
-    got = client.get(f'/confirmation/{user.confirmation}/')
+    got = client.get(f'/confirm/{user.confirmation}/')
 
     assert 'confirmation ok' in str(got.data)
 
 
 def test_user_is_conrirmed(client, user, models):
-    client.get(f'/confirmation/{user.confirmation}/')
+    client.get(f'/confirm/{user.confirmation}/')
 
     user = models.User.get(pk=user.pk)
 
@@ -23,13 +23,13 @@ def test_user_is_conrirmed(client, user, models):
 
 
 def test_key_mismatch(client):
-    got = client.get(f'/confirmation/{uuid.uuid4()}/')
+    got = client.get(f'/confirm/{uuid.uuid4()}/')
 
     assert 'confirmation failure' in str(got.data)
 
 
 def test_user_is_not_confirmed(client, user, models):
-    client.get(f'/confirmation/{uuid.uuid4()}/')
+    client.get(f'/confirm/{uuid.uuid4()}/')
 
     user = models.User.get(pk=user.pk)
 

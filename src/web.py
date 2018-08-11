@@ -13,8 +13,8 @@ app = Flask(__name__)
 app.config.from_object(Configuration)
 
 
-@app.route('/confirmation/<key>/')
-def confirmation(key):
+@app.route('/confirm/<key>/')
+def confirm(key):
     user = get_user_by_confirmation_link(key)
 
     if user is None:
