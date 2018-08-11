@@ -7,7 +7,7 @@ defaults: &defaults
         - CELERY_BROKER_URL=redis://redis:6379/0
 
         - BOT_TOKEN=100500:abc
-        - MAILGUN_DOMAIN=ci-test.sendmailbot.co
+        - MAILGUN_DOMAIN=samples.mailgun.org
         - MAILGUN_API_KEY=key-abc
         - MAILGUN_FROM=Note to self <telergram@selfmailbot.co>
 
