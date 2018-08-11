@@ -52,15 +52,34 @@ def send_text_message(bot, update: Update, user: User, render, **kwargs):
 
 
 @reply
-def send_photo(bot, update: Update, user: User, **kwargs):
+def send_photo(bot, update: Update, user: User, render):
     file = update.message.photo[-1].get_file()
     photo = get_file(file)
 
-    message = update.message.reply_text(text=f'Ok, sending photo')
+    message = update.message.reply_text(text=render('photo_is_sent'))
 
-    tasks.send_photo(
+    tasks.send_file.delay(
         user_id=user.pk,
-        photo=photo,
+        file=photo,
+        subject='Photo note to self',
+        variables=dict(
+            message_id=message.message_id,
+            chat_id=update.message.chat_id,
+        ),
+    )
+
+
+@reply
+def send_voice(bot, update: Update, user: User, render):
+    file = update.message.voice.get_file()
+    voice = get_file(file)
+
+    message = update.message.reply_text(text=render('voice_is_sent'))
+
+    tasks.send_file.delay(
+        user_id=user.pk,
+        file=voice,
+        subject='Voice note to self',
         variables=dict(
             message_id=message.message_id,
             chat_id=update.message.chat_id,
@@ -124,6 +143,7 @@ dispatcher.add_handler(MessageHandler(UserWithoutEmailFilter(), prompt_for_setti
 dispatcher.add_handler(MessageHandler(NonConfirmedUserFilter(), prompt_for_confirm))
 dispatcher.add_handler(MessageHandler(ConfirmedUserFilter() & Filters.text, send_text_message))
 dispatcher.add_handler(MessageHandler(ConfirmedUserFilter() & Filters.photo, send_photo))
+dispatcher.add_handler(MessageHandler(ConfirmedUserFilter() & Filters.voice, send_voice))
 
 if __name__ == '__main__':
     create_tables()

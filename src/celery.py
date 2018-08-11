@@ -12,6 +12,8 @@ celery = Celery('app')
 celery.conf.update(
     broker_url=env('CELERY_BROKER_URL'),
     task_always_eager=env('CELERY_ALWAYS_EAGER', cast=bool, default=False),
+    task_serializer='pickle',  # we transfer binary data like photos or voice messages,
+    accept_content=['pickle'],
 )
 
 
@@ -40,14 +42,14 @@ def send_text(user_id, subject, text, variables=None):
 
 
 @celery.task
-def send_photo(user_id, photo, variables=None):
+def send_file(user_id, file, subject, variables=None):
     user = User.get(User.pk == user_id)
 
     send_mail(
         to=user.email,
         user_id=user_id,
         text=' ',
-        subject='Photo',
+        subject='subject',
         variables=variables,
-        attachment=photo,
+        attachment=file,
     )
