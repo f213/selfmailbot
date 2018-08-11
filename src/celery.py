@@ -49,7 +49,7 @@ def send_file(user_id, file, subject, variables=None):
         to=user.email,
         user_id=user_id,
         text=' ',
-        subject='subject',
+        subject=subject,
         variables=variables,
         attachment=file,
     )
