@@ -7,7 +7,7 @@ def send_mail(mocker):
 
 
 def test(bot_app, update, models, send_mail):
-    user = models.get_user_instance(update.message.from_user)
+    user = models.get_user_instance(update.message.from_user, 100500)
     user.email = 'test@test.org'
     user.save()
 

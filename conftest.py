@@ -1,6 +1,6 @@
 import uuid
 from random import randint
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import peewee as pw
 import pytest
@@ -72,7 +72,8 @@ def bot(message):
 
 
 @pytest.fixture
-def app():
+def app(bot, mocker):
+    mocker.patch('src.web.get_bot', return_value=bot)
     from src.web import app
     app.testing = True
     return app
@@ -105,6 +106,7 @@ def db_user(models):
         email='user@e.mail',
         full_name='Petrovich',
         confirmation=uuid.uuid4(),
+        chat_id=randint(100_000_000, 999_999_999),
     ), **kwargs})
 
 

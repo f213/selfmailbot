@@ -4,7 +4,7 @@ import pytest
 @pytest.fixture
 def create_user_from_tg(models, tg_user):
     def _create(**kwargs):
-        created = models.get_user_instance(tg_user)
+        created = models.get_user_instance(tg_user, 100500)
 
         for key, value in kwargs.items():
             setattr(created, key, value)
@@ -30,6 +30,7 @@ def test_user_creation(bot_app, update, models, tg_user):
     assert saved.full_name == f'{tg_user.first_name} {tg_user.last_name}'
     assert saved.is_confirmed is False
     assert saved.email is None
+    assert saved.chat_id == update.message.chat_id
 
 
 def test_second_start_for_existing_user_does_not_update_name(bot_app, update, create_user_from_tg, models):

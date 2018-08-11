@@ -14,6 +14,17 @@ def test_confirmation_ok(client, user):
     assert 'confirmation ok' in str(got.data)
 
 
+def test_user_is_notified(client, user, bot):
+    client.get(f'/confirm/{user.confirmation}/')
+
+    assert bot.send_message.called
+
+    kwargs = bot.send_message.call_args[1]
+
+    assert kwargs['chat_id'] == user.chat_id
+    assert 'confirmed' in kwargs['text']
+
+
 def test_user_is_conrirmed(client, user, models):
     client.get(f'/confirm/{user.confirmation}/')
 

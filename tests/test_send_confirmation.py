@@ -34,7 +34,7 @@ def test_ok(bot_app, update, bot, send_mail):
 
 
 def test_email_is_sent_to_correct_user(bot_app, update, send_mail, models):
-    user = models.get_user_instance(update.message.from_user)
+    user = models.get_user_instance(update.message.from_user, 100500)
     update.message.text = 'ok@e.mail'
 
     bot_app.call('send_confirmation', update)
@@ -43,7 +43,7 @@ def test_email_is_sent_to_correct_user(bot_app, update, send_mail, models):
 
 
 def test_email_is_updated(bot_app, update, send_mail, models):
-    user = models.get_user_instance(update.message.from_user)
+    user = models.get_user_instance(update.message.from_user, 100500)
     update.message.text = 'ok@e.mail'
 
     bot_app.call('send_confirmation', update)

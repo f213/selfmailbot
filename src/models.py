@@ -19,12 +19,13 @@ class User(pw.Model):
     is_confirmed = pw.BooleanField(default=False, index=True)
     sent_message_count = pw.IntegerField(default=0)
     confirmation = pw.CharField(max_length=36, index=True)
+    chat_id = pw.BigIntegerField(unique=True)
 
     class Meta:
         database = db
 
 
-def get_user_instance(user: telegram.User) -> User:
+def get_user_instance(user: telegram.User, chat_id: int) -> User:
     instance, created = User.get_or_create(
         pk=user.id,
         defaults=dict(
@@ -32,6 +33,7 @@ def get_user_instance(user: telegram.User) -> User:
             full_name=user.full_name,
             username=user.username,
             confirmation=uuid.uuid4(),
+            chat_id=chat_id,
         ),
     )
     return instance
@@ -47,7 +49,7 @@ def get_user_by_confirmation_link(link) -> User:
 def with_user(fn):
     """Decorator to add kwarg with registered user instance to the telegram.ext handler"""
     def call(bot, update, *args, **kwargs):
-        kwargs['user'] = get_user_instance(update.message.from_user)
+        kwargs['user'] = get_user_instance(update.message.from_user, chat_id=update.message.chat_id)
 
         return fn(bot, update, *args, **kwargs)
 

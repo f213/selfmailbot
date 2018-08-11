@@ -116,19 +116,19 @@ def prompt_for_confirm(bot, update: Update, user: User, render):
 
 class ConfirmedUserFilter(BaseFilter):
     def filter(self, message: Message):
-        user = get_user_instance(message.from_user)
+        user = get_user_instance(message.from_user, message.chat_id)
         return user.is_confirmed
 
 
 class UserWithoutEmailFilter(BaseFilter):
     def filter(self, message: Message):
-        user = get_user_instance(message.from_user)
+        user = get_user_instance(message.from_user, message.chat_id)
         return user.email is None
 
 
 class NonConfirmedUserFilter(BaseFilter):
     def filter(self, message: Message):
-        user = get_user_instance(message.from_user)
+        user = get_user_instance(message.from_user, message.chat_id)
         return user.email is not None and user.is_confirmed is False
 
 

@@ -15,7 +15,7 @@ def update(update):
 
 @pytest.fixture(autouse=True)
 def user(update, models):
-    user = models.get_user_instance(update.message.from_user)
+    user = models.get_user_instance(update.message.from_user, 100500)
     user.email = 'mocked@test.org'
     user.save()
 
