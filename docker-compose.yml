@@ -28,14 +28,14 @@ services:
   celery-flower:
     image: f213/selfmailbot
     restart: always
-    command: celery -A srv.celery flower
+    command: celery -A srv.celery flower --url-prefix=flower
     environment:
       CELERY_BROKER_URL: redis://redis:6379/0
 
     links:
       - redis
 
-  web:
+  confirmation-webapp:
     image: f213/selfmailbot
     restart: always
     command: uwsgi --http :8000 --module srv.web:app --workers 2 --threads 2
@@ -45,5 +45,12 @@ services:
   redis:
     image: redis:4-alpine
 
-  nginx:
-    image: nginx:alpine
+  nginx-routing:
+    image: nginx
+    volumes:
+      - ./infra/nginx-routing.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "8080:80"
+    links:
+      - confirmation-webapp
+      - celery-flower
