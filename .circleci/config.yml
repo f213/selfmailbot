@@ -1,0 +1,91 @@
+version: 2
+defaults: &defaults
+  docker:
+    - image: circleci/python:3.6-stretch
+      environment:
+        - DATABASE_URL=sqlite:///db.sqlite
+        - CELERY_BROKER_URL=redis://redis:6379/0
+
+    - image: redis:alpine
+
+jobs:
+  build:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          key: deps-{{ checksum "src/requirements.txt" }}
+
+      - run:
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r src/requirements.txt
+
+
+      - save_cache:
+          key: deps-{{ checksum "src/requirements.txt" }}
+          paths:
+            - "venv"
+
+      - run:
+          name: Run Flake8
+          command: |
+            . venv/bin/activate
+            cd src && flake8
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - "venv"
+            - "src"
+            - ".circleci"
+
+  unittest:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: .
+
+      - run:
+          command: |
+            . venv/bin/activate
+            py.test -x
+
+
+  build_docker_image:
+    docker:
+      - image: circleci/buildpack-deps:stretch
+
+    steps:
+      - attach_workspace:
+          at: .
+
+      - setup_remote_docker
+
+      - run:
+          name: Build docker image
+          command: docker build -t f213/selfmailbot src
+
+      - run:
+          name: Push docker image to the registry
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+            docker push f213/selfmailbot
+
+workflows:
+  version: 2
+
+  continuous-delivery:
+    jobs:
+      - build
+      - unittest:
+          requires:
+            - build
+      - build_docker_image:
+          requires:
+            - unittest
+          filters:
+            branches:
+              only: master
+
