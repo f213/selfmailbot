@@ -31,6 +31,7 @@ def test_user_creation(bot_app, update, models, tg_user):
     assert saved.is_confirmed is False
     assert saved.email is None
     assert saved.chat_id == update.message.chat_id
+    assert saved.language_code == tg_user.language_code
 
 
 def test_second_start_for_existing_user_does_not_update_name(bot_app, update, create_user_from_tg, models):

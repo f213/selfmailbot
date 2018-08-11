@@ -16,6 +16,7 @@ class User(pw.Model):
     full_name = pw.CharField()
     username = pw.CharField(null=True)
     email = pw.CharField(index=True, null=True)
+    language_code = pw.CharField(default='en')
     is_confirmed = pw.BooleanField(default=False, index=True)
     sent_message_count = pw.IntegerField(default=0)
     confirmation = pw.CharField(max_length=36, index=True)
@@ -34,6 +35,7 @@ def get_user_instance(user: telegram.User, chat_id: int) -> User:
             username=user.username,
             confirmation=uuid.uuid4(),
             chat_id=chat_id,
+            language_code=user.language_code,
         ),
     )
     return instance

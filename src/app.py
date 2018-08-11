@@ -6,6 +6,7 @@ from telegram.ext import CommandHandler, MessageHandler, Updater
 from telegram.ext.filters import BaseFilter, Filters
 
 from . import celery as tasks
+from . import speech
 from .helpers import get_file, get_subject, reply
 from .models import User, create_tables, get_user_instance
 
@@ -17,6 +18,12 @@ logging.basicConfig(level=logging.DEBUG,
 @reply
 def start(bot, update: Update, user: User, render):
     update.message.reply_text(text=render('hello_message'))
+
+
+@reply
+def setlanguage(bot, update: Update, user: User, render):
+    reply_markup = ReplyKeyboardMarkup(speech.get_language_keyboard())
+    update.message.reply_text(render('select_your_language'), reply_markup=reply_markup)
 
 
 @reply

@@ -1,6 +1,6 @@
+import random
 import uuid
-from random import randint
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import peewee as pw
 import pytest
@@ -15,7 +15,7 @@ def factory(class_name: str = None, **kwargs):
         pass
 
     rewrite = {
-        '__randint': lambda *args: randint(100_000_000, 999_999_999),
+        '__randint': lambda *args: random.randint(100_000_000, 999_999_999),
     }
 
     for key, value in kwargs.items():
@@ -89,6 +89,7 @@ def tg_user():
         first_name=faker.first_name(),
         last_name=faker.last_name(),
         username=faker.user_name(),
+        language_code=random.choice(['en-US', 'ru-RU']),
     )):
 
         @property
@@ -101,12 +102,12 @@ def tg_user():
 @pytest.fixture
 def db_user(models):
     return lambda **kwargs: models.User.create(**{**dict(
-        pk=randint(100_000_000, 999_999_999),
+        pk=random.randint(100_000_000, 999_999_999),
         is_confirmed=False,
         email='user@e.mail',
         full_name='Petrovich',
         confirmation=uuid.uuid4(),
-        chat_id=randint(100_000_000, 999_999_999),
+        chat_id=random.randint(100_000_000, 999_999_999),
     ), **kwargs})
 
 
