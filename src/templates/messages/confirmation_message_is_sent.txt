@@ -1,1 +1,1 @@
-Confirmation message is sent to {{ user.email }}. Click the link from it, and we are all set up!
+Confirmation message is sent to {{ user.email }}. Click the link in your inbox, and we are all set up!

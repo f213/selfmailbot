@@ -15,8 +15,8 @@ logging.basicConfig(level=logging.DEBUG,
 
 
 @reply
-def start(bot, update: Update, user: User, **kwargs):
-    update.message.reply_text(text=f'Your id is {user.id} and name is {user.full_name}')
+def start(bot, update: Update, user: User, render):
+    update.message.reply_text(text=render('hello_message'))
 
 
 @reply
