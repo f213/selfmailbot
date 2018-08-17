@@ -1,0 +1,32 @@
+# Selfmailbot — the bot that sends all messages to your inbox
+
+![](https://user-images.githubusercontent.com/1592663/44275252-e059dd00-a24c-11e8-8ca9-44e3081c5ab6.png)
+
+Useful for GTD and email geeks.
+
+## Installation
+
+This bots works as free-for-all SaaS at [selfmailbot.co](https://t.me/selfmailbot), but you are free to build your own bot from this source code.
+
+The bot app is dockerized, but if you want to run the bot on the local machine, you are going to need this:
+
+* Python 3.6
+* Redis
+* Celery
+* Mailgun account
+
+## Configuration
+
+Configure the bot through the environment variables (or the `.env` file):
+
+```
+BOT_TOKEN=100500:S3cr37T0k3n
+MAILGUN_DOMAIN=mail.your.bot.addrress
+MAILGUN_API_KEY=key-s3cr3t
+MAILGUN_FROM=Note to self <yourbot@e.mail>
+CELERY_BROKER_URL=redis://localhost:6379
+```
+
+## Hacking
+
+PR's are welcome
