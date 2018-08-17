@@ -2,7 +2,7 @@
 
 ![](https://user-images.githubusercontent.com/1592663/44275252-e059dd00-a24c-11e8-8ca9-44e3081c5ab6.png)
 
-[![CircleCI](https://circleci.com/gh/f213/selfmailbot.svg?style=svg&circle-token=b689a894fe6b84c56e1052b95e3c2a7c0246bec6)](https://circleci.com/gh/f213/selfmailbot)
+[![CircleCI](https://circleci.com/gh/f213/selfmailbot.svg?style=svg&circle-token=b689a894fe6b84c56e1052b95e3c2a7c0246bec6)](https://circleci.com/gh/f213/selfmailbot) [![uptime](https://img.shields.io/uptimerobot/ratio/7/m780844027-6fa56428dcb0970de6905410.svg?style=flat-square)](https://stats.uptimerobot.com/gn1MkTvPv) ![](https://img.shields.io/github/license/f213/selfmailbot.svg?style=flat-square)
 
 Useful for GTD and email geeks.
 
