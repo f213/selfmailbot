@@ -58,7 +58,7 @@ services:
     image: redis:4-alpine
 
   nginx:
-    image: nginx
+    image: nginx:alpine
     volumes:
       - ./infra/nginx-routing.conf:/etc/nginx/conf.d/default.conf
     ports:
