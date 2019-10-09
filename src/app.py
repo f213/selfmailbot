@@ -34,6 +34,19 @@ def reset_email(bot, update: Update, user, render):
 
 
 @reply
+def confirm_email(bot, update: Update, user, render):
+    key = update.message.text.strip()
+    if user.confirmation != key:
+        update.message.reply_text(text=render('confirmation_failure'))
+        return
+
+    user.is_confirmed = True
+    user.save()
+
+    update.message.reply_text(text=render('email_is_confirmed'))
+
+
+@reply
 def send_text_message(bot, update: Update, user: User, render, **kwargs):
     text = update.message.text
     subject = get_subject(text)
@@ -139,6 +152,7 @@ dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(MessageHandler(UserWithoutEmailFilter() & Filters.text & Filters.regex('@'), send_confirmation))  # looks like email, so send confirmation to it
 dispatcher.add_handler(MessageHandler(NonConfirmedUserFilter() & Filters.text & Filters.regex('Resend confirmation email'), resend))  # resend confirmation email
 dispatcher.add_handler(MessageHandler(NonConfirmedUserFilter() & Filters.text & Filters.regex('Change email'), reset_email))  # change email
+dispatcher.add_handler(MessageHandler(NonConfirmedUserFilter() & Filters.text & Filters.regex('\w{8}\-\w{4}\-\w{4}\-\w{4}\-\w{12}'), confirm_email))  # change email
 dispatcher.add_handler(MessageHandler(UserWithoutEmailFilter(), prompt_for_setting_email))
 dispatcher.add_handler(MessageHandler(NonConfirmedUserFilter(), prompt_for_confirm))
 dispatcher.add_handler(MessageHandler(ConfirmedUserFilter() & Filters.text, send_text_message))
