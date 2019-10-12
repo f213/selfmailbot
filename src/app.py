@@ -69,10 +69,12 @@ def send_photo(bot, update: Update, user: User, render):
     file = update.message.photo[-1].get_file()
     photo = get_file(file)
     subject = 'Photo note to self'
+    text = ''
 
-    text = update.message.caption.strip()
-    if text:
-        subject = 'Photo: {}'.format(get_subject(text))
+    if update.message.caption is not None:
+        text = update.message.caption.strip()
+        if text:
+            subject = 'Photo: {}'.format(get_subject(text))
 
     message = update.message.reply_text(text=render('photo_is_sent'))
 
