@@ -42,12 +42,12 @@ python-dateutil==2.7.3
 python-telegram-bot==10.1.0
 pytz==2018.5
 redis==2.10.6
-requests==2.20.0
-requests-mock==1.5.2
+requests==2.22.0
+requests-mock==1.7.0
 six==1.11.0
 testfixtures==6.2.0
 text-unidecode==1.2
 tornado==5.1
-urllib3==1.23
+urllib3==1.24.2
 vine==1.1.4
 Werkzeug==0.14.1
