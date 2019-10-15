@@ -1,0 +1,3 @@
+Confirmation key is wrong.
+
+The good idea is to resend confirmation key and paste new key or confirm email via html link. Feel free to contact us at me@selfmailbot.co for any questions.

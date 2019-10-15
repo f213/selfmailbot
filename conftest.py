@@ -105,7 +105,7 @@ def db_user(models):
         is_confirmed=False,
         email='user@e.mail',
         full_name='Petrovich',
-        confirmation=uuid.uuid4(),
+        confirmation=str(uuid.uuid4()),
         chat_id=randint(100_000_000, 999_999_999),
     ), **kwargs})
 

@@ -32,7 +32,7 @@ def get_user_instance(user: telegram.User, chat_id: int) -> User:
             pk=user.id,
             full_name=user.full_name,
             username=user.username,
-            confirmation=uuid.uuid4(),
+            confirmation=str(uuid.uuid4()),
             chat_id=chat_id,
         ),
     )
