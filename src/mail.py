@@ -6,7 +6,7 @@ from .tpl import get_template
 env.read_envfile()
 
 
-class MailException(BaseException):
+class MailException(Exception):
     pass
 
 

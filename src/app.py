@@ -68,13 +68,21 @@ def send_text_message(bot, update: Update, user: User, render, **kwargs):
 def send_photo(bot, update: Update, user: User, render):
     file = update.message.photo[-1].get_file()
     photo = get_file(file)
+    subject = 'Photo note to self'
+    text = ''
+
+    if update.message.caption is not None:
+        text = update.message.caption.strip()
+        if text:
+            subject = 'Photo: {}'.format(get_subject(text))
 
     message = update.message.reply_text(text=render('photo_is_sent'))
 
     tasks.send_file.delay(
         user_id=user.pk,
         file=photo,
-        subject='Photo note to self',
+        subject=subject,
+        text=text,
         variables=dict(
             message_id=message.message_id,
             chat_id=update.message.chat_id,

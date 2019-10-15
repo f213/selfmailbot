@@ -42,13 +42,16 @@ def send_text(user_id, subject, text, variables=None):
 
 
 @celery.task
-def send_file(user_id, file, subject, variables=None):
+def send_file(user_id, file, subject, text='', variables=None):
     user = User.get(User.pk == user_id)
+
+    if not text:
+        text = ' '
 
     send_mail(
         to=user.email,
         user_id=user_id,
-        text=' ',
+        text=text,
         subject=subject,
         variables=variables,
         attachment=file,

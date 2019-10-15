@@ -6,6 +6,8 @@ import peewee as pw
 import pytest
 from faker import Faker
 
+import base64
+
 faker = Faker()
 
 
@@ -128,4 +130,42 @@ def update(message, tg_user):
         'Update',
         update_id='__randint',
         message=message(from_user=tg_user),
+    )()
+
+
+@pytest.fixture
+def photo():
+    # 1x1 png pixel, base64
+    png_b64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABHNCSVQICAgIfAhkiAAAAA1JREFUCJlj+P///38ACfsD/QjR6B4AAAAASUVORK5CYII='
+    return base64.b64decode(png_b64)
+
+
+@pytest.fixture
+def tg_photo_file(photo):
+    """telegram.File"""
+    def _mock_download(custom_path=None, out=None, timeout=None):
+        if out:
+            out.write(photo)
+        return out
+
+    return lambda **kwargs: factory(
+        'File',
+        file_id='__randint',
+        file_size=None,
+        file_path='/tmp/path/to/file.png',
+        download=MagicMock(side_effect=_mock_download),
+        **kwargs,
+    )()
+
+
+@pytest.fixture
+def tg_photo_size(tg_photo_file):
+    """telegram.PhotoSize"""
+    return lambda **kwargs: factory(
+        'PhotoSize',
+        file_id='__randint',
+        width=1,
+        height=1,
+        get_file=MagicMock(return_value=tg_photo_file()),
+        **kwargs,
     )()
