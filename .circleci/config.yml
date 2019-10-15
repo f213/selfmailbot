@@ -1,4 +1,7 @@
-version: 2
+version: 2.1
+orbs:
+  docker: circleci/docker@0.5.13
+
 defaults: &defaults
   docker:
     - image: circleci/python:3.6-stretch
@@ -53,40 +56,46 @@ jobs:
             . venv/bin/activate
             py.test -x
 
-
-  build_docker_image:
-    docker:
-      - image: circleci/buildpack-deps:stretch
-
+  deploy:
+    <<: *defaults
     steps:
       - attach_workspace:
           at: .
-
-      - setup_remote_docker
-
       - run:
-          name: Build docker image
-          command: docker build -t f213/selfmailbot src
-
-      - run:
-          name: Push docker image to the registry
+          name: Install deploy tooling
           command: |
-            docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-            docker push f213/selfmailbot
+            export D_RELEASE=0.3.0
+            wget -O - https://raw.githubusercontent.com/f213/d/master/install.sh|sh
+      - run:
+          name: Add host key
+          command: ./d add-host-key
+
+      - run:
+          name: Update image
+          command: |
+            ./d update-image circle@selfmailbot.co selfmailbot f213/selfmailbot:${CIRCLE_SHA1}
+
 
 workflows:
   version: 2
-
   continuous-delivery:
     jobs:
       - build
       - unittest:
           requires:
             - build
-      - build_docker_image:
+      - docker/publish:
+          image: f213/selfmailbot
+          path: src
           requires:
             - unittest
           filters:
             branches:
               only: master
 
+      - deploy:
+          requires:
+            - docker/publish
+          filters:
+            branches:
+              only: master
