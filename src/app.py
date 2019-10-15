@@ -160,7 +160,7 @@ dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(MessageHandler(UserWithoutEmailFilter() & Filters.text & Filters.regex('@'), send_confirmation))  # looks like email, so send confirmation to it
 dispatcher.add_handler(MessageHandler(NonConfirmedUserFilter() & Filters.text & Filters.regex('Resend confirmation email'), resend))  # resend confirmation email
 dispatcher.add_handler(MessageHandler(NonConfirmedUserFilter() & Filters.text & Filters.regex('Change email'), reset_email))  # change email
-dispatcher.add_handler(MessageHandler(NonConfirmedUserFilter() & Filters.text & Filters.regex('\w{8}\-\w{4}\-\w{4}\-\w{4}\-\w{12}'), confirm_email))  # change email
+dispatcher.add_handler(MessageHandler(NonConfirmedUserFilter() & Filters.text & Filters.regex('\w{8}\-\w{4}\-\w{4}\-\w{4}\-\w{12}'), confirm_email))  # confirm email
 dispatcher.add_handler(MessageHandler(UserWithoutEmailFilter(), prompt_for_setting_email))
 dispatcher.add_handler(MessageHandler(NonConfirmedUserFilter(), prompt_for_confirm))
 dispatcher.add_handler(MessageHandler(ConfirmedUserFilter() & Filters.text, send_text_message))
