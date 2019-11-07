@@ -1,4 +1,4 @@
-from asyncio import TimeoutError
+from typing import Iterable
 
 from envparse import env
 from google.cloud import speech
@@ -7,7 +7,7 @@ from google.cloud.speech import enums, types
 env.read_envfile()
 
 
-def do_recognition(stream: bytes) -> list:
+def do_recognition(stream: bytes) -> Iterable:
     client = speech.SpeechClient()
 
     audio = types.RecognitionAudio(content=stream)
@@ -16,11 +16,8 @@ def do_recognition(stream: bytes) -> list:
         sample_rate_hertz=16000,
         language_code='ru-RU',
     )
-    try:
-        recognition = client.long_running_recognize(config, audio).result(timeout=90)
-        return [result.alternatives[0].transcript for result in recognition.results]
-    except TimeoutError:
-        return []
+    recognition = client.long_running_recognize(config, audio).result(timeout=90)
+    return [result.alternatives[0].transcript for result in recognition.results]
 
 
 def recognize(stream: bytes) -> str:
