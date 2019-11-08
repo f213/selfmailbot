@@ -61,9 +61,13 @@ def send_file(user_id, file, subject, text='', variables=None):
 
 
 @celery.task
-def send_recognized_voice(user_id, file, variables=None):
-    recognized_text = recognize(file.read())
-    subject = get_subject(recognized_text)
+def send_recognized_voice(user_id, file, duration, variables=None):
+    if duration <= 60:
+        recognized_text = recognize(file.read())
+        subject = 'Voice: {}'.format(get_subject(recognized_text)) if recognized_text else 'Voice note to self'
+    else:
+        recognized_text = ''
+        subject = 'Voice note to self'
 
     send_file(
         user_id=user_id,
