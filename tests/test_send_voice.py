@@ -24,7 +24,7 @@ def user(update, models):
     user.save()
 
 
-def test_send_long_voice(bot_app, update, send_mail, voice, recognition_result):
+def test_send_long_voice(bot_app, update, send_mail, voice):
     update.message.voice.duration = 90
     bot_app.call('send_voice', update)
 
