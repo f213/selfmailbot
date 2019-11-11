@@ -26,7 +26,6 @@ def user(update, models):
 
 def test_send_long_voice(bot_app, update, send_mail, voice, recognition_result):
     update.message.voice.duration = 90
-    recognition_result.return_value = ['очень', 'большой', ' изумрудно-зеленый камнеед', 'сидит', 'в холодном пруду']
     bot_app.call('send_voice', update)
 
     attachment = send_mail.call_args[1]['attachment']
