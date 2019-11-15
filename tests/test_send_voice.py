@@ -31,23 +31,15 @@ def voice():
 def update(update, voice):
     """Add Voice instance to regular update.message"""
     class FakeVoice:
-        file_id = '__randint',
-        duration = 1,
-        mime_type = 'audio/ogg',
-        file_size = 3645
 
         @staticmethod
         def get_file():
             class File:
-                file_id = '__randint',
-                file_size = None,
                 file_path = '/tmp/path/to/file.ogg'
 
                 @staticmethod
                 def download(custom_path=None, out=None, timeout=None):
-                    if out:
-                        out.write(voice)
-                    return out
+                    out.write(voice)
 
             file = File()
             return file
