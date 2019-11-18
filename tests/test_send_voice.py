@@ -64,54 +64,35 @@ def test_attachment(bot_app, update, send_mail, voice, duration, recognition_res
     assert get_attachment(send_mail) == voice
 
 
-def test_send_long_voice(bot_app, update, send_mail):
-    update.message.voice.duration = 90
-    bot_app.call('send_voice', update)
-    attachment = send_mail.call_args[1]['attachment']
-
-    send_mail.assert_called_once_with(
-        user_id=update.message.from_user.id,
-        to='mocked@test.org',
-        subject='Voice note to self',
-        text=' ',
-        variables=dict(
-            message_id=100800,
-            chat_id=update.message.chat_id,
+@pytest.mark.parametrize(
+    'duration, recognized, subject, text',
+    [
+        pytest.param(
+            30,
+            ['большой', 'зеленый камнеед', 'сидит', 'в пруду'],
+            'Voice: Большой зеленый камнеед...',
+            'большой зеленый камнеед сидит в пруду',
+            id='short_recognized'
         ),
-        attachment=attachment
-    )
-
-
-def test_send_short_voice_recognized(bot_app, update, send_mail, recognition_result):
-    update.message.voice.duration = 30
-    recognition_result.return_value = ['большой', 'зеленый камнеед', 'сидит', 'в пруду']
-    bot_app.call('send_voice', update)
-    attachment = send_mail.call_args[1]['attachment']
-
-    send_mail.assert_called_once_with(
-        user_id=update.message.from_user.id,
-        to='mocked@test.org',
-        subject='Voice: Большой зеленый камнеед...',
-        text='большой зеленый камнеед сидит в пруду',
-        variables=dict(
-            message_id=100800,
-            chat_id=update.message.chat_id,
+        pytest.param(
+            30, [], 'Voice note to self', ' ', id='short_unrecognized'
         ),
-        attachment=attachment
-    )
-
-
-def test_send_short_voice_unrecognized(bot_app, update, send_mail, recognition_result):
-    update.message.voice.duration = 30
-    recognition_result.return_value = []
+        pytest.param(
+            90, [], 'Voice note to self', ' ', id='long'
+        ),
+    ],
+)
+def test_send_voice(bot_app, update, send_mail, recognition_result, duration, recognized, subject, text):
+    update.message.voice.duration = duration
+    recognition_result.return_value = recognized
     bot_app.call('send_voice', update)
     attachment = send_mail.call_args[1]['attachment']
 
     send_mail.assert_called_once_with(
         user_id=update.message.from_user.id,
         to='mocked@test.org',
-        subject='Voice note to self',
-        text=' ',
+        subject=subject,
+        text=text,
         variables=dict(
             message_id=100800,
             chat_id=update.message.chat_id,
