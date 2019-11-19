@@ -1,8 +1,10 @@
 from celery import Celery
 from envparse import env
 
+from .helpers import get_subject
 from .mail import send_mail
 from .models import User
+from .recognize import recognize
 from .tpl import get_template
 
 env.read_envfile()
@@ -55,4 +57,22 @@ def send_file(user_id, file, subject, text='', variables=None):
         subject=subject,
         variables=variables,
         attachment=file,
+    )
+
+
+@celery.task
+def send_recognized_voice(user_id, file, duration, variables=None):
+    if duration <= 60:
+        recognized_text = recognize(file.read())
+        subject = 'Voice: {}'.format(get_subject(recognized_text)) if recognized_text else 'Voice note to self'
+    else:
+        recognized_text = ''
+        subject = 'Voice note to self'
+
+    send_file(
+        user_id=user_id,
+        file=file,
+        subject=subject,
+        text=recognized_text,
+        variables=variables,
     )

@@ -92,15 +92,16 @@ def send_photo(bot, update: Update, user: User, render):
 
 @reply
 def send_voice(bot, update: Update, user: User, render):
+    duration = update.message.voice.duration
     file = update.message.voice.get_file()
     voice = get_file(file)
 
     message = update.message.reply_text(text=render('voice_is_sent'))
 
-    tasks.send_file.delay(
+    tasks.send_recognized_voice.delay(
         user_id=user.pk,
         file=voice,
-        subject='Voice note to self',
+        duration=duration,
         variables=dict(
             message_id=message.message_id,
             chat_id=update.message.chat_id,
