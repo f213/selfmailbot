@@ -1,5 +1,7 @@
+import sentry_sdk
 from celery import Celery
 from envparse import env
+from sentry_sdk.integrations.celery import CeleryIntegration
 
 from .helpers import get_subject
 from .mail import send_mail
@@ -17,6 +19,9 @@ celery.conf.update(
     task_serializer='pickle',  # we transfer binary data like photos or voice messages,
     accept_content=['pickle'],
 )
+
+if env('SENTRY_DSN', default=None) is not None:
+    sentry_sdk.init(env('SENTRY_DSN'), integrations=[CeleryIntegration()])
 
 
 @celery.task

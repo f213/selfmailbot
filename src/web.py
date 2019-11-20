@@ -1,5 +1,7 @@
+import sentry_sdk
 from flask import Flask, g, render_template
 from flask_env import MetaFlaskEnv
+from sentry_sdk.integrations.flask import FlaskIntegration
 from telegram import Bot
 
 from .models import get_user_by_confirmation_link
@@ -9,10 +11,14 @@ class Configuration(metaclass=MetaFlaskEnv):
     DEBUG = False
     PORT = 5000
     BOT_TOKEN = ''
+    SENTRY_DSN = None
 
 
 app = Flask(__name__)
 app.config.from_object(Configuration)
+
+if Configuration.SENTRY_DSN is not None:
+    sentry_sdk.init(Configuration.SENTRY_DSN, integrations=[FlaskIntegration()])
 
 
 def get_bot():
