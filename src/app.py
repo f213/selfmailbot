@@ -1,5 +1,6 @@
 import logging
 
+import sentry_sdk
 from envparse import env
 from telegram import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import CommandHandler, MessageHandler, Updater
@@ -12,6 +13,10 @@ from .models import User, create_tables, get_user_instance
 env.read_envfile()
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+
+if env('SENTRY_DSN', default=None) is not None:
+    sentry_sdk.init(env('SENTRY_DSN'))
 
 
 @reply
