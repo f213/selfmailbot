@@ -15,3 +15,4 @@ def test(bot_app, update, models, send_mail):
     user = models.User.get(models.User.pk == user.pk)
 
     assert user.email is None
+    assert user.is_confirmed == False
