@@ -33,6 +33,7 @@ def resend(bot, update: Update, user, render):
 @reply
 def reset_email(bot, update: Update, user, render):
     user.email = None
+    user.is_confirmed = False
     user.save()
 
     update.message.reply_text(text=render('email_is_reset'), reply_markup=ReplyKeyboardRemove())
@@ -163,6 +164,7 @@ updater = Updater(token=env('BOT_TOKEN'))
 dispatcher = updater.dispatcher
 
 dispatcher.add_handler(CommandHandler('start', start))
+dispatcher.add_handler(CommandHandler('reset', reset_email))
 dispatcher.add_handler(MessageHandler(UserWithoutEmailFilter() & Filters.text & Filters.regex('@'), send_confirmation))  # looks like email, so send confirmation to it
 dispatcher.add_handler(MessageHandler(NonConfirmedUserFilter() & Filters.text & Filters.regex('Resend confirmation email'), resend))  # resend confirmation email
 dispatcher.add_handler(MessageHandler(NonConfirmedUserFilter() & Filters.text & Filters.regex('Change email'), reset_email))  # change email
