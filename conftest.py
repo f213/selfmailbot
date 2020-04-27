@@ -1,12 +1,11 @@
+import base64
 import uuid
 from random import randint
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import peewee as pw
 import pytest
 from faker import Faker
-
-import base64
 
 faker = Faker()
 
@@ -169,4 +168,3 @@ def tg_photo_size(tg_photo_file):
         get_file=MagicMock(return_value=tg_photo_file()),
         **kwargs,
     )()
-

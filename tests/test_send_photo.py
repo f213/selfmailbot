@@ -25,7 +25,7 @@ def test_send_photo_with_caption(bot_app, update, models, send_mail, mocker, pho
     bot_app.call('send_photo', update)
 
     attachment = send_mail.call_args[1]['attachment']
-    attachment.seek(0,0)
+    attachment.seek(0, 0)
 
     assert attachment.read() == photo
 
@@ -38,14 +38,15 @@ def test_send_photo_with_caption(bot_app, update, models, send_mail, mocker, pho
             message_id=100800,
             chat_id=update.message.chat_id,
         ),
-        attachment=attachment
+        attachment=attachment,
     )
+
 
 def test_send_photo_without_caption(bot_app, update, models, send_mail, mocker, photo):
     bot_app.call('send_photo', update)
 
     attachment = send_mail.call_args[1]['attachment']
-    attachment.seek(0,0)
+    attachment.seek(0, 0)
 
     assert attachment.read() == photo
 
@@ -58,5 +59,5 @@ def test_send_photo_without_caption(bot_app, update, models, send_mail, mocker, 
             message_id=100800,
             chat_id=update.message.chat_id,
         ),
-        attachment=attachment
+        attachment=attachment,
     )

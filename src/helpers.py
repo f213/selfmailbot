@@ -29,7 +29,7 @@ def capfirst(x):
 
 def get_subject(text):
     """Generate subject based on message text"""
-    words = [word.lower() for word in re.split('\s+', text)]
+    words = [word.lower() for word in re.split(r'\s+', text)]
     words[0] = capfirst(words[0])
 
     if len(words) > 1:

@@ -1,6 +1,6 @@
-import pytest
-
 import base64
+
+import pytest
 
 
 @pytest.fixture
@@ -72,13 +72,13 @@ def test_attachment(bot_app, update, send_mail, voice, duration, recognition_res
             ['большой', 'зеленый камнеед', 'сидит', 'в пруду'],
             'Voice: Большой зеленый камнеед...',
             'большой зеленый камнеед сидит в пруду',
-            id='short_recognized'
+            id='short_recognized',
         ),
         pytest.param(
-            30, [], 'Voice note to self', ' ', id='short_unrecognized'
+            30, [], 'Voice note to self', ' ', id='short_unrecognized',
         ),
         pytest.param(
-            90, [], 'Voice note to self', ' ', id='long'
+            90, [], 'Voice note to self', ' ', id='long',
         ),
     ],
 )
@@ -97,5 +97,5 @@ def test_send_voice(bot_app, update, send_mail, recognition_result, duration, re
             message_id=100800,
             chat_id=update.message.chat_id,
         ),
-        attachment=attachment
+        attachment=attachment,
     )
