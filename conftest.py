@@ -59,7 +59,8 @@ def models(db):
 def bot_app(bot):
     """Our bot app, adds the magic curring `call` method to call it with fake bot"""
     from src import app
-    setattr(app, 'call', lambda method, *args, **kwargs: getattr(app, method)(bot, *args, **kwargs))
+    app.call = lambda method, *args, **kwargs: getattr(app, method)(bot, *args, **kwargs)
+
     return app
 
 
