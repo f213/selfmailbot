@@ -41,7 +41,7 @@ peewee==3.6.4
 pep8-naming==0.7.0
 pluggy==0.13.1
 protobuf==3.11.3
-py==1.5.4
+py==1.8.1
 pyasn1==0.4.8
 pyasn1-modules==0.2.7
 pycodestyle==2.3.1
