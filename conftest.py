@@ -34,7 +34,7 @@ def factory(class_name: str = None, **kwargs):
 
 @pytest.fixture
 def db():
-    return pw.SqliteDatabase(':memory:', autocommit=False)
+    return pw.SqliteDatabase(':memory:')
 
 
 @pytest.fixture(autouse=True)
