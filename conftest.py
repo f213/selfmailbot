@@ -1,12 +1,11 @@
+import base64
 import uuid
 from random import randint
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import peewee as pw
 import pytest
 from faker import Faker
-
-import base64
 
 faker = Faker()
 
@@ -60,7 +59,8 @@ def models(db):
 def bot_app(bot):
     """Our bot app, adds the magic curring `call` method to call it with fake bot"""
     from src import app
-    setattr(app, 'call', lambda method, *args, **kwargs: getattr(app, method)(bot, *args, **kwargs))
+    app.call = lambda method, *args, **kwargs: getattr(app, method)(bot, *args, **kwargs)
+
     return app
 
 

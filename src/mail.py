@@ -42,7 +42,7 @@ def send_mail(to, subject, text, user_id, variables=None, attachment=None):
     }, attachment)
 
 
-def send_confirmation_mail(user: 'User'):
+def send_confirmation_mail(user):
     return send_mail(
         to=user.email,
         subject='[Selfmailbot] Please confirm your email',
