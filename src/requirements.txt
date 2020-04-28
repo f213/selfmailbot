@@ -40,7 +40,7 @@ more-itertools==4.2.0
 packaging==20.3
 peewee==3.6.4
 pep8-naming==0.7.0
-pluggy==0.7.1
+pluggy==0.13.1
 protobuf==3.10.0
 py==1.5.4
 pyasn1==0.4.8
