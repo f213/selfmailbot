@@ -50,7 +50,7 @@ pyflakes==2.1.0
 pyparsing==2.4.7
 pytest==5.4.1
 pytest-env==0.6.2
-pytest-flask==0.10.0
+pytest-flask==1.0.0
 pytest-mock==1.10.0
 python-dateutil==2.7.3
 python-telegram-bot==10.1.0
