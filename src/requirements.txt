@@ -55,7 +55,7 @@ pytest-mock==1.10.0
 python-dateutil==2.7.3
 python-telegram-bot==10.1.0
 pytz==2019.3
-redis==2.10.6
+redis==3.4.1
 requests==2.22.0
 requests-mock==1.7.0
 rsa==4.0
