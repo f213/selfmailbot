@@ -57,7 +57,7 @@ python-dateutil==2.7.3
 python-telegram-bot==10.1.0
 pytz==2019.3
 redis==3.5.0
-requests==2.22.0
+requests==2.23.0
 requests-mock==1.7.0
 rsa==4.0
 sentry-sdk==0.14.3
