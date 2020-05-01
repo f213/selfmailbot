@@ -65,7 +65,7 @@ six==1.14.0
 testfixtures==6.2.0
 text-unidecode==1.2
 toml==0.10.0
-tornado==5.1
+tornado==6.0.4
 urllib3==1.25.9
 vine==1.3.0
 wcwidth==0.1.9
