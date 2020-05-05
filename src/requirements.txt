@@ -55,7 +55,7 @@ pytest-flask==1.0.0
 pytest-mock==1.10.0
 python-dateutil==2.7.3
 python-telegram-bot==12.7
-pytz==2019.3
+pytz==2020.1
 redis==3.5.0
 requests==2.23.0
 requests-mock==1.8.0
