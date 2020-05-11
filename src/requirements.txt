@@ -1,5 +1,5 @@
 amqp==2.5.2
-atomicwrites==1.1.5
+atomicwrites==1.4.0
 attrs==19.3.0
 Babel==2.8.0
 billiard==3.6.3.0
