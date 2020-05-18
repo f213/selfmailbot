@@ -27,7 +27,7 @@ google-auth==1.14.1
 google-cloud-speech==1.2.0
 googleapis-common-protos==1.6.0
 grpcio==1.25.0
-humanize==0.5.1
+humanize==2.4.0
 idna==2.9
 importlib-metadata==1.6.0
 isort==4.3.21
