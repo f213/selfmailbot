@@ -37,7 +37,7 @@ kombu==4.6.8
 MarkupSafe==1.1.1
 mccabe==0.6.1
 mocker==1.1.1
-more-itertools==8.2.0
+more-itertools==8.3.0
 packaging==20.3
 peewee==3.13.3
 pep8-naming==0.10.0
