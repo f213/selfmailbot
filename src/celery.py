@@ -36,7 +36,7 @@ def send_confirmation_mail(user_id):
 
 
 @celery.task
-def send_text(user_id, subject, text, variables=None):
+def send_text(user_id, subject, text):
     user = User.get(User.pk == user_id)
 
     send_mail(
@@ -44,12 +44,11 @@ def send_text(user_id, subject, text, variables=None):
         user_id=user_id,
         subject=subject,
         text=text,
-        variables=variables,
     )
 
 
 @celery.task
-def send_file(user_id, file, subject, text='', variables=None):
+def send_file(user_id, file, subject, text=''):
     user = User.get(User.pk == user_id)
 
     if not text:
@@ -60,13 +59,12 @@ def send_file(user_id, file, subject, text='', variables=None):
         user_id=user_id,
         text=text,
         subject=subject,
-        variables=variables,
         attachment=file,
     )
 
 
 @celery.task
-def send_recognized_voice(user_id, file, duration, variables=None):
+def send_recognized_voice(user_id, file, duration):
     if duration <= 60:
         recognized_text = recognize(file.read())
         subject = 'Voice: {}'.format(get_subject(recognized_text)) if recognized_text else 'Voice note to self'
@@ -79,5 +77,4 @@ def send_recognized_voice(user_id, file, duration, variables=None):
         file=file,
         subject=subject,
         text=recognized_text,
-        variables=variables,
     )

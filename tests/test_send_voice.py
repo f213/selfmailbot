@@ -93,9 +93,5 @@ def test_send_voice(bot_app, update, send_mail, recognition_result, duration, re
         to='mocked@test.org',
         subject=subject,
         text=text,
-        variables=dict(
-            message_id=100800,
-            chat_id=update.message.chat_id,
-        ),
-        attachment=attachment,
+        attachment=base64.b64encode(attachment.read()),
     )

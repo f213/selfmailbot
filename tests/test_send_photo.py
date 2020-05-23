@@ -34,10 +34,6 @@ def test_send_photo_with_caption(bot_app, update, models, send_mail, mocker, pho
         to='mocked@test.org',
         subject='Photo: Слоны идут на...',
         text='Слоны идут на север',
-        variables=dict(
-            message_id=100800,
-            chat_id=update.message.chat_id,
-        ),
         attachment=attachment,
     )
 
@@ -55,9 +51,5 @@ def test_send_photo_without_caption(bot_app, update, models, send_mail, mocker, 
         to='mocked@test.org',
         subject='Photo note to self',
         text=' ',
-        variables=dict(
-            message_id=100800,
-            chat_id=update.message.chat_id,
-        ),
         attachment=attachment,
     )

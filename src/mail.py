@@ -1,5 +1,7 @@
-import requests
+from base64 import b64encode
+
 from envparse import env
+from mailjet_rest import Client
 
 from .tpl import get_template
 
@@ -10,36 +12,40 @@ class MailException(Exception):
     pass
 
 
-def get_url():
-    return 'https://api.mailgun.net/v3/{}/messages'.format(env('MAILGUN_DOMAIN'))
-
-
 def post(payload, attachment=None):
     payload = {key: value for key, value in payload.items() if value is not None and value}
 
-    files = {}
     if attachment is not None:
-        files = {'inline': attachment}
+        payload['InlinedAttachments'] = [{
+            'ContentType': 'image/png',
+            'Filename': 'note.png',
+            'Base64Content': b64encode(attachment.read()),
+        }]
 
-    response = requests.post(get_url(), auth=('api', env('MAILGUN_API_KEY')), data=payload, files=files)
+    mailjet = Client(auth=(env('MAILJET_API_KEY'), env('MAILJET_API_SECRET')), version='v3.1')
+
+    response = mailjet.send.create(data=payload)
+
     if response.status_code != 200:
-        raise MailException('Non-200 response from mailgun: {} ({})'.format(response.status_code, response.text))
+        raise MailException('Non-200 response from mailjet: {} ({})'.format(response.status_code, response.json()['ErrorMessage']))
 
     return response.json()
 
 
-def send_mail(to, subject, text, user_id, variables=None, attachment=None):
-    if variables is None:
-        variables = dict()
-
+def send_mail(to, subject, text, user_id, attachment=None):
     return post({
-        'to': to,
-        'from': env('MAILGUN_FROM'),
-        'subject': subject,
-        'text': text,
-        'h:X-telegram-id': user_id,
-        'h:X-Mailgun-Variables': variables,
-    }, attachment)
+        'Messages': [{
+            'From': {
+                'Email': env('MAILJET_FROM'),
+                'Name': 'Note to self',
+            },
+            'To': [{
+                'Email': to,
+            }],
+            'Subject': subject,
+            'TextPart': text,
+        }]
+    }, attachment=attachment)
 
 
 def send_confirmation_mail(user):

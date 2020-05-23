@@ -28,8 +28,4 @@ def test(bot_app, update, models, send_mail, mocker):
         to='mocked@test.org',
         subject='Слоны идут на...',
         text='Слоны идут на север',
-        variables=dict(
-            message_id=100800,
-            chat_id=update.message.chat_id,
-        ),
     )

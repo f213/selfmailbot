@@ -57,16 +57,12 @@ def send_text_message(bot, update: Update, user: User, render, **kwargs):
     text = update.message.text
     subject = get_subject(text)
 
-    message = update.message.reply_text(text=render('message_is_sent'))
+    update.message.reply_text(text=render('message_is_sent'))
 
     tasks.send_text.delay(
         user_id=user.pk,
         subject=subject,
         text=text,
-        variables=dict(
-            message_id=message.message_id,
-            chat_id=update.message.chat_id,
-        ),
     )
 
 
@@ -82,17 +78,13 @@ def send_photo(bot, update: Update, user: User, render):
         if text:
             subject = 'Photo: {}'.format(get_subject(text))
 
-    message = update.message.reply_text(text=render('photo_is_sent'))
+    update.message.reply_text(text=render('photo_is_sent'))
 
     tasks.send_file.delay(
         user_id=user.pk,
         file=photo,
         subject=subject,
         text=text,
-        variables=dict(
-            message_id=message.message_id,
-            chat_id=update.message.chat_id,
-        ),
     )
 
 
@@ -102,16 +94,12 @@ def send_voice(bot, update: Update, user: User, render):
     file = update.message.voice.get_file()
     voice = get_file(file)
 
-    message = update.message.reply_text(text=render('voice_is_sent'))
+    update.message.reply_text(text=render('voice_is_sent'))
 
     tasks.send_recognized_voice.delay(
         user_id=user.pk,
         file=voice,
         duration=duration,
-        variables=dict(
-            message_id=message.message_id,
-            chat_id=update.message.chat_id,
-        ),
     )
 
 
@@ -131,7 +119,7 @@ def send_confirmation(bot, update: Update, user: User, render):
     user.email = email
     user.save()
 
-    tasks.send_confirmation_mail.delay(user.pk)
+    tasks.send_confirmation_mail(user.pk)
 
     update.message.reply_text(text=render('confirmation_message_is_sent'))
 
