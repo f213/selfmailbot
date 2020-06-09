@@ -4,7 +4,7 @@ orbs:
 
 defaults: &defaults
   docker:
-    - image: circleci/python:3.6-stretch
+    - image: circleci/python:3.7-stretch
       environment:
         - DATABASE_URL=sqlite:///db.sqlite
         - CELERY_BROKER_URL=redis://redis:6379/0
