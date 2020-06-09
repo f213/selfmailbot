@@ -166,6 +166,7 @@ def tg_photo_size(tg_photo_file):
         file_id='__randint',
         width=1,
         height=1,
+        download=MagicMock(return_value=tg_photo_file()),
         get_file=MagicMock(return_value=tg_photo_file()),
         **kwargs,
     )()

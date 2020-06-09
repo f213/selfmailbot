@@ -1,68 +1,7 @@
 version: '3.6'
 
 services:
-  bot:
-    image: f213/selfmailbot
-    restart: always
-    command: python -m srv.app
-    env_file:
-      - ./.env.default
-      - ./.env
-
-    links:
-      - redis
-
-    volumes:
-      - ./db:/db
-
-  celery-worker:
-    image: f213/selfmailbot
-    restart: always
-    command: celery -A srv.celery worker
-    environment:
-      - C_FORCE_ROOT=on
-    env_file:
-      - ./.env.default
-      - ./.env
-
-    links:
-      - redis
-
-    volumes:
-      - ./db:/db
-
-  celery-flower:
-    image: f213/selfmailbot
-    restart: always
-    command: celery -A srv.celery flower --url-prefix=flower
-
-    links:
-      - redis
-
-    env_file:
-      - ./.env.default
-      - ./.env
-
-  confirmation-webapp:
-    image: f213/selfmailbot
-    restart: always
-    command: uwsgi --http :8000 --module srv.web:app --workers 2 --threads 2
-    env_file:
-      - ./.env.default
-      - ./.env
-
-    volumes:
-      - ./db:/db
-
   redis:
-    image: redis:4-alpine
-
-  nginx:
-    image: nginx:alpine
-    volumes:
-      - ./infra/nginx-routing.conf:/etc/nginx/conf.d/default.conf
+    image: redis:5-alpine
     ports:
-      - "127.0.0.1:8001:80"
-    links:
-      - confirmation-webapp
-      - celery-flower
+      - "6379:6379"

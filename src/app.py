@@ -1,4 +1,5 @@
 import logging
+from os.path import basename
 
 import sentry_sdk
 from envparse import env
@@ -7,7 +8,7 @@ from telegram.ext import CommandHandler, MessageHandler, Updater
 from telegram.ext.filters import BaseFilter, Filters
 
 from . import celery as tasks
-from .helpers import get_file, get_subject, reply
+from .helpers import download, get_subject, reply
 from .models import User, create_tables, get_user_instance
 
 env.read_envfile()
@@ -57,23 +58,19 @@ def send_text_message(bot, update: Update, user: User, render, **kwargs):
     text = update.message.text
     subject = get_subject(text)
 
-    message = update.message.reply_text(text=render('message_is_sent'))
+    update.message.reply_text(text=render('message_is_sent'))
 
     tasks.send_text.delay(
         user_id=user.pk,
         subject=subject,
         text=text,
-        variables=dict(
-            message_id=message.message_id,
-            chat_id=update.message.chat_id,
-        ),
     )
 
 
 @reply
 def send_photo(bot, update: Update, user: User, render):
     file = update.message.photo[-1].get_file()
-    photo = get_file(file)
+    photo = download(file)
     subject = 'Photo note to self'
     text = ''
 
@@ -82,17 +79,14 @@ def send_photo(bot, update: Update, user: User, render):
         if text:
             subject = 'Photo: {}'.format(get_subject(text))
 
-    message = update.message.reply_text(text=render('photo_is_sent'))
+    update.message.reply_text(text=render('photo_is_sent'))
 
     tasks.send_file.delay(
         user_id=user.pk,
         file=photo,
+        filename=basename(file.file_path),
         subject=subject,
         text=text,
-        variables=dict(
-            message_id=message.message_id,
-            chat_id=update.message.chat_id,
-        ),
     )
 
 
@@ -100,18 +94,14 @@ def send_photo(bot, update: Update, user: User, render):
 def send_voice(bot, update: Update, user: User, render):
     duration = update.message.voice.duration
     file = update.message.voice.get_file()
-    voice = get_file(file)
+    voice = download(file)
 
-    message = update.message.reply_text(text=render('voice_is_sent'))
+    update.message.reply_text(text=render('voice_is_sent'))
 
     tasks.send_recognized_voice.delay(
         user_id=user.pk,
         file=voice,
         duration=duration,
-        variables=dict(
-            message_id=message.message_id,
-            chat_id=update.message.chat_id,
-        ),
     )
 
 
