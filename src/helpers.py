@@ -44,7 +44,7 @@ def get_subject(text):
     return words[0][:32] + '...'  # first 32 characters
 
 
-def get_file(file: telegram.File) -> BytesIO:
+def download(file: telegram.File) -> BytesIO:
     attachment = BytesIO()
     attachment.name = str(uuid.uuid4()) + '.' + path.splitext(file.file_path)[1]
 

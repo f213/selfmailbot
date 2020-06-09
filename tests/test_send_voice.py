@@ -89,9 +89,9 @@ def test_send_voice(bot_app, update, send_mail, recognition_result, duration, re
     attachment = send_mail.call_args[1]['attachment']
 
     send_mail.assert_called_once_with(
-        user_id=update.message.from_user.id,
         to='mocked@test.org',
         subject=subject,
         text=text,
-        attachment=base64.b64encode(attachment.read()),
+        attachment=attachment,
+        attachment_name='voice.oga',
     )

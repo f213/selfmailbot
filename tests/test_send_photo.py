@@ -30,11 +30,11 @@ def test_send_photo_with_caption(bot_app, update, models, send_mail, mocker, pho
     assert attachment.read() == photo
 
     send_mail.assert_called_once_with(
-        user_id=update.message.from_user.id,
         to='mocked@test.org',
         subject='Photo: Слоны идут на...',
         text='Слоны идут на север',
         attachment=attachment,
+        attachment_name='file.png',
     )
 
 
@@ -47,9 +47,9 @@ def test_send_photo_without_caption(bot_app, update, models, send_mail, mocker, 
     assert attachment.read() == photo
 
     send_mail.assert_called_once_with(
-        user_id=update.message.from_user.id,
         to='mocked@test.org',
         subject='Photo note to self',
         text=' ',
         attachment=attachment,
+        attachment_name='file.png',
     )

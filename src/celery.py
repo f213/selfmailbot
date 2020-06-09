@@ -30,7 +30,6 @@ def send_confirmation_mail(user_id):
     send_mail(
         to=user.email,
         subject='[Selfmailbot] Confirm your email',
-        user_id=user.id,
         text=get_template('email/confirmation.txt').render(user=user),
     )
 
@@ -41,14 +40,13 @@ def send_text(user_id, subject, text):
 
     send_mail(
         to=user.email,
-        user_id=user_id,
         subject=subject,
         text=text,
     )
 
 
 @celery.task
-def send_file(user_id, file, subject, text=''):
+def send_file(user_id, file, filename, subject, text=''):
     user = User.get(User.pk == user_id)
 
     if not text:
@@ -56,10 +54,10 @@ def send_file(user_id, file, subject, text=''):
 
     send_mail(
         to=user.email,
-        user_id=user_id,
         text=text,
         subject=subject,
         attachment=file,
+        attachment_name=filename,
     )
 
 
@@ -75,6 +73,7 @@ def send_recognized_voice(user_id, file, duration):
     send_file(
         user_id=user_id,
         file=file,
+        filename='voice.oga',
         subject=subject,
         text=recognized_text,
     )
