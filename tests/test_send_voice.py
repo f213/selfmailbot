@@ -2,6 +2,10 @@ import base64
 
 import pytest
 
+pytestmark = [
+    pytest.mark.xfail(reason='Voice messages are switched off'),
+]
+
 
 @pytest.fixture
 def recognition_result(mocker):

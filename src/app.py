@@ -92,17 +92,7 @@ def send_photo(bot, update: Update, user: User, render):
 
 @reply
 def send_voice(bot, update: Update, user: User, render):
-    duration = update.message.voice.duration
-    file = update.message.voice.get_file()
-    voice = download(file)
-
-    update.message.reply_text(text=render('voice_is_sent'))
-
-    tasks.send_recognized_voice.delay(
-        user_id=user.pk,
-        file=voice,
-        duration=duration,
-    )
+    update.message.reply_text(text='Sorry, voice messages are not supported right now')
 
 
 @reply
