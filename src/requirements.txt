@@ -41,7 +41,7 @@ isort==4.3.21
 itsdangerous==0.24
 jedi==0.17.0
 Jinja2==2.11.2
-kombu==4.6.8
+kombu==4.6.11
 MarkupSafe==1.1.1
 mccabe==0.6.1
 mocker==1.1.1
