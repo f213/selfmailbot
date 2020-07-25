@@ -65,7 +65,7 @@ pyflakes==2.2.0
 Pygments==2.6.1
 pyparsing==2.4.7
 pystmark==0.4.8
-pytest==5.4.2
+pytest==5.4.3
 pytest-env==0.6.2
 pytest-flask==1.0.0
 pytest-mock==3.1.0
