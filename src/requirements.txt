@@ -68,7 +68,7 @@ pystmark==0.4.8
 pytest==5.4.3
 pytest-env==0.6.2
 pytest-flask==1.0.0
-pytest-mock==3.1.0
+pytest-mock==3.4.0
 python-dateutil==2.8.1
 python-telegram-bot==12.7
 pytz==2020.1
