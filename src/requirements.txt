@@ -40,7 +40,7 @@ ipython-genutils==0.2.0
 isort==4.3.21
 itsdangerous==0.24
 jedi==0.17.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 kombu==4.6.8
 MarkupSafe==1.1.1
 mccabe==0.6.1
