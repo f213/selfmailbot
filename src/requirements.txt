@@ -7,7 +7,7 @@ backcall==0.1.0
 billiard==3.6.3.0
 blinker==1.4
 cachetools==4.1.0
-celery==4.4.2
+celery==5.1.0
 certifi==2018.4.16
 cffi==1.14.0
 chardet==3.0.4
