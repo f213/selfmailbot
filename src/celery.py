@@ -1,3 +1,5 @@
+from io import BytesIO
+
 import sentry_sdk
 from celery import Celery
 from envparse import env
@@ -23,7 +25,7 @@ if env("SENTRY_DSN", default=None) is not None:
 
 
 @celery.task
-def send_confirmation_mail(user_id):
+def send_confirmation_mail(user_id: int) -> None:
     user = User.get(User.pk == user_id)
     send_mail(
         to=user.email,
@@ -33,7 +35,7 @@ def send_confirmation_mail(user_id):
 
 
 @celery.task
-def send_text(user_id, subject, text):
+def send_text(user_id: int, subject: str, text: str) -> None:
     user = User.get(User.pk == user_id)
 
     send_mail(
@@ -44,11 +46,8 @@ def send_text(user_id, subject, text):
 
 
 @celery.task
-def send_file(user_id, file, filename, subject, text=""):
+def send_file(user_id: int, file: BytesIO, filename: str, subject: str, text: str = " ") -> None:
     user = User.get(User.pk == user_id)
-
-    if not text:
-        text = " "
 
     send_mail(
         to=user.email,

@@ -1,9 +1,9 @@
-from os.path import dirname, join
+from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, Template
 
 env = Environment(
-    loader=FileSystemLoader(join(dirname(__file__), 'templates')),
+    loader=FileSystemLoader(Path(__file__).parent / "templates"),
 )
 
 
@@ -12,5 +12,5 @@ def get_template(template_name: str) -> Template:
 
 
 __all__ = [
-    get_template,
+    "get_template",
 ]

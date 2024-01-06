@@ -1,64 +1,68 @@
 import logging
-from os.path import basename
+import os
+from pathlib import Path
+from typing import Any
 
 import sentry_sdk
-from envparse import env
-from telegram import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
-from telegram.ext import CommandHandler, MessageHandler, Updater
-from telegram.ext.filters import BaseFilter, Filters
+from dotenv import load_dotenv
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
 
 from . import celery as tasks
 from .helpers import download, get_subject, reply
 from .models import User, create_tables, get_user_instance
+from .types import HumanMessage, MessageUpdate, TemplateRenderFunction, TextMessageUpdate
 
-env.read_envfile()
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+load_dotenv()
 
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-if env('SENTRY_DSN', default=None) is not None:
-    sentry_sdk.init(env('SENTRY_DSN'))
-
-
-@reply
-def start(bot, update: Update, user: User, render):
-    update.message.reply_text(text=render('hello_message'))
+if os.getenv("SENTRY_DSN") is not None:
+    sentry_sdk.init(os.getenv("SENTRY_DSN"))
 
 
 @reply
-def resend(bot, update: Update, user, render):
+async def start(update: TextMessageUpdate, user: User, render: TemplateRenderFunction) -> None:
+    await update.message.reply_text(
+        text=render("hello_message"),
+    )
+
+
+@reply
+async def resend(update: TextMessageUpdate, user: User, render: TemplateRenderFunction) -> None:
     tasks.send_confirmation_mail.delay(user.pk)
-    update.message.reply_text(text=render('confirmation_message_is_sent'), reply_markup=ReplyKeyboardRemove())
+    await update.message.reply_text(text=render("confirmation_message_is_sent"), reply_markup=ReplyKeyboardRemove())
 
 
 @reply
-def reset_email(bot, update: Update, user, render):
-    user.email = None
+async def reset_email(update: TextMessageUpdate, user: User, render: TemplateRenderFunction) -> None:
+    user.email = ""
     user.is_confirmed = False
     user.save()
 
-    update.message.reply_text(text=render('email_is_reset'), reply_markup=ReplyKeyboardRemove())
+    await update.message.reply_text(text=render("email_is_reset"), reply_markup=ReplyKeyboardRemove())
 
 
 @reply
-def confirm_email(bot, update: Update, user, render):
+async def confirm_email(update: TextMessageUpdate, user: User, render: TemplateRenderFunction) -> None:
     key = update.message.text.strip()
+
     if user.confirmation != key:
-        update.message.reply_text(text=render('confirmation_failure'))
+        await update.message.reply_text(text=render("confirmation_failure"))
         return
 
     user.is_confirmed = True
     user.save()
 
-    update.message.reply_text(text=render('email_is_confirmed'))
+    await update.message.reply_text(text=render("email_is_confirmed"))
 
 
 @reply
-def send_text_message(bot, update: Update, user: User, render, **kwargs):
+async def send_text_message(update: TextMessageUpdate, user: User, render: TemplateRenderFunction, **kwargs: Any) -> None:
     text = update.message.text
     subject = get_subject(text)
 
-    update.message.reply_text(text=render('message_is_sent'))
+    await update.message.reply_text(text=render("message_is_sent"))
 
     tasks.send_text.delay(
         user_id=user.pk,
@@ -68,44 +72,39 @@ def send_text_message(bot, update: Update, user: User, render, **kwargs):
 
 
 @reply
-def send_photo(bot, update: Update, user: User, render):
-    file = update.message.photo[-1].get_file()
+async def send_photo(update: MessageUpdate, user: User, render: TemplateRenderFunction) -> None:
+    file = await update.message.photo[-1].get_file()
     photo = download(file)
-    subject = 'Photo note to self'
-    text = ''
+    subject = "Photo note to self"
+    text = ""
 
     if update.message.caption is not None:
         text = update.message.caption.strip()
         if text:
-            subject = 'Photo: {}'.format(get_subject(text))
+            subject = f"Photo: {get_subject(text)}"
 
-    update.message.reply_text(text=render('photo_is_sent'))
+    await update.message.reply_text(text=render("photo_is_sent"))
 
     tasks.send_file.delay(
         user_id=user.pk,
         file=photo,
-        filename=basename(file.file_path),
+        filename=Path(file.file_path).name,  # type: ignore[arg-type]
         subject=subject,
         text=text,
     )
 
 
 @reply
-def send_voice(bot, update: Update, user: User, render):
-    update.message.reply_text(text='Sorry, voice messages are not supported right now')
+async def prompt_for_setting_email(update: TextMessageUpdate, user: User, render: TemplateRenderFunction) -> None:
+    await update.message.reply_text(text=render("please_send_email"))
 
 
 @reply
-def prompt_for_setting_email(bot, update: Update, user: User, render):
-    update.message.reply_text(text=render('please_send_email'))
-
-
-@reply
-def send_confirmation(bot, update: Update, user: User, render):
+async def send_confirmation(update: TextMessageUpdate, user: User, render: TemplateRenderFunction) -> None:
     email = update.message.text.strip()
 
     if User.select().where(User.email == email):
-        update.message.reply_text(text=render('email_is_occupied'))
+        await update.message.reply_text(text=render("email_is_occupied"))
         return
 
     user.email = email
@@ -113,48 +112,70 @@ def send_confirmation(bot, update: Update, user: User, render):
 
     tasks.send_confirmation_mail.delay(user.pk)
 
-    update.message.reply_text(text=render('confirmation_message_is_sent'))
+    await update.message.reply_text(text=render("confirmation_message_is_sent"))
 
 
 @reply
-def prompt_for_confirm(bot, update: Update, user: User, render):
-    reply_markup = ReplyKeyboardMarkup([['Resend confirmation email'], ['Change email']])
-    update.message.reply_text(render('waiting_for_confirmation'), reply_markup=reply_markup)
+async def prompt_for_confirm(update: TextMessageUpdate, user: User, render: TemplateRenderFunction) -> None:
+    reply_markup = ReplyKeyboardMarkup([["Resend confirmation email"], ["Change email"]])
+    await update.message.reply_text(render("waiting_for_confirmation"), reply_markup=reply_markup)
 
 
-class ConfirmedUserFilter(BaseFilter):
-    def filter(self, message: Message):
+class ConfirmedUserFilter(filters.BaseFilter):
+    def filter(self, message: HumanMessage) -> bool:
         user = get_user_instance(message.from_user, message.chat_id)
+
         return user.is_confirmed
 
 
-class UserWithoutEmailFilter(BaseFilter):
-    def filter(self, message: Message):
+class UserWithoutEmailFilter(filters.BaseFilter):
+    def filter(self, message: HumanMessage) -> bool:
         user = get_user_instance(message.from_user, message.chat_id)
+
         return user.email is None
 
 
-class NonConfirmedUserFilter(BaseFilter):
-    def filter(self, message: Message):
+class NonConfirmedUserFilter(filters.BaseFilter):
+    def filter(self, message: HumanMessage) -> bool:
         user = get_user_instance(message.from_user, message.chat_id)
+
         return user.email is not None and user.is_confirmed is False
 
 
-updater = Updater(token=env('BOT_TOKEN'))
-dispatcher = updater.dispatcher
+bot_token = os.getenv("BOT_TOKEN")
+if bot_token is None:
+    raise RuntimeError("Please set BOT_TOKEN")  # NOQA: TRY003
 
-dispatcher.add_handler(CommandHandler('start', start))
-dispatcher.add_handler(CommandHandler('reset', reset_email))
-dispatcher.add_handler(MessageHandler(UserWithoutEmailFilter() & Filters.text & Filters.regex('@'), send_confirmation))  # looks like email, so send confirmation to it
-dispatcher.add_handler(MessageHandler(NonConfirmedUserFilter() & Filters.text & Filters.regex('Resend confirmation email'), resend))  # resend confirmation email
-dispatcher.add_handler(MessageHandler(NonConfirmedUserFilter() & Filters.text & Filters.regex('Change email'), reset_email))  # change email
-dispatcher.add_handler(MessageHandler(NonConfirmedUserFilter() & Filters.text & Filters.regex(r'\w{8}\-\w{4}\-\w{4}\-\w{4}\-\w{12}'), confirm_email))  # confirm email
-dispatcher.add_handler(MessageHandler(UserWithoutEmailFilter(), prompt_for_setting_email))
-dispatcher.add_handler(MessageHandler(NonConfirmedUserFilter(), prompt_for_confirm))
-dispatcher.add_handler(MessageHandler(ConfirmedUserFilter() & Filters.text, send_text_message))
-dispatcher.add_handler(MessageHandler(ConfirmedUserFilter() & Filters.photo, send_photo))
-dispatcher.add_handler(MessageHandler(ConfirmedUserFilter() & Filters.voice, send_voice))
+application = ApplicationBuilder().token(bot_token).build()
 
-if __name__ == '__main__':
+application.add_handler(CommandHandler("start", start))
+application.add_handler(CommandHandler("reset", reset_email))
+application.add_handler(
+    MessageHandler(UserWithoutEmailFilter() & filters.TEXT & filters.Regex("@"), send_confirmation)
+)  # looks like email, so send confirmation to it
+application.add_handler(
+    MessageHandler(
+        NonConfirmedUserFilter() & filters.TEXT & filters.Regex("Resend confirmation email"),
+        resend,
+    )
+)  # resend confirmation email
+application.add_handler(
+    MessageHandler(
+        NonConfirmedUserFilter() & filters.TEXT & filters.Regex("Change email"),
+        reset_email,
+    )
+)  # change email
+application.add_handler(
+    MessageHandler(
+        NonConfirmedUserFilter() & filters.TEXT & filters.Regex(r"\w{8}\-\w{4}\-\w{4}\-\w{4}\-\w{12}"),
+        confirm_email,
+    )
+)  # confirm email
+application.add_handler(MessageHandler(UserWithoutEmailFilter(), prompt_for_setting_email))
+application.add_handler(MessageHandler(NonConfirmedUserFilter(), prompt_for_confirm))
+application.add_handler(MessageHandler(ConfirmedUserFilter() & filters.TEXT, send_text_message))
+application.add_handler(MessageHandler(ConfirmedUserFilter() & filters.PHOTO, send_photo))
+
+if __name__ == "__main__":
     create_tables()
-    updater.start_polling()
+    application.run_polling()

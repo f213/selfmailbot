@@ -6,13 +6,8 @@
 [*.py]
     indent_size      = 4
 
-[*.json]
-    indent_style    = space
-    indent_size     = 2
-
-[*.coffee]
-    indent_style    = space
-    indent_size     = 2
-
 [*.yaml]
     indent_size = 2
+
+[{Makefile,**.mk}]
+    indent_style = tab
