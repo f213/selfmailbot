@@ -1,27 +1,26 @@
+import logging
+import os
 import re
 import uuid
 from io import BytesIO
 from pathlib import Path
-from typing import Callable, no_type_check
 
+import sentry_sdk
 import telegram
 
-from .models import with_user
-from .tpl import get_template
+
+def enable_logging() -> None:
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
 
 
-@no_type_check
-def reply(fn: Callable) -> Callable:
-    """Add a with_user decorator and a render function with additional ctx"""
+def init_sentry() -> None:
+    sentry_dsn = os.getenv("SENTRY_DSN", None)
 
-    def _call(*args, user, **kwargs) -> None:
-        def render(tpl: str, **kwargs):
-            template = get_template("messages/" + tpl + ".txt")
-            return template.render(user=user, **kwargs)
-
-        return fn(*args, **kwargs, user=user, render=render)
-
-    return with_user(_call)
+    if sentry_dsn:
+        sentry_sdk.init(sentry_dsn)
 
 
 def capfirst(x: str) -> str:

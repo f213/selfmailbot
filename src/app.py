@@ -1,28 +1,21 @@
-import logging
 import os
 from pathlib import Path
-from typing import Any
 
-import sentry_sdk
 from dotenv import load_dotenv
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
+from telegram.ext import Application, ApplicationBuilder, CommandHandler, MessageHandler, filters
 
 from . import celery as tasks
-from .helpers import download, get_subject, reply
+from .framework import reply
+from .helpers import download, enable_logging, get_subject, init_sentry
 from .models import User, create_tables, get_user_instance
 from .types import HumanMessage, MessageUpdate, TemplateRenderFunction, TextMessageUpdate
 
 load_dotenv()
 
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-
-if os.getenv("SENTRY_DSN") is not None:
-    sentry_sdk.init(os.getenv("SENTRY_DSN"))
-
 
 @reply
-async def start(update: TextMessageUpdate, user: User, render: TemplateRenderFunction) -> None:
+async def start(update: TextMessageUpdate, render: TemplateRenderFunction) -> None:
     await update.message.reply_text(
         text=render("hello_message"),
     )
@@ -58,7 +51,7 @@ async def confirm_email(update: TextMessageUpdate, user: User, render: TemplateR
 
 
 @reply
-async def send_text_message(update: TextMessageUpdate, user: User, render: TemplateRenderFunction, **kwargs: Any) -> None:
+async def send_text_message(update: TextMessageUpdate, user: User, render: TemplateRenderFunction) -> None:
     text = update.message.text
     subject = get_subject(text)
 
@@ -95,7 +88,7 @@ async def send_photo(update: MessageUpdate, user: User, render: TemplateRenderFu
 
 
 @reply
-async def prompt_for_setting_email(update: TextMessageUpdate, user: User, render: TemplateRenderFunction) -> None:
+async def prompt_for_setting_email(update: TextMessageUpdate, render: TemplateRenderFunction) -> None:
     await update.message.reply_text(text=render("please_send_email"))
 
 
@@ -112,70 +105,81 @@ async def send_confirmation(update: TextMessageUpdate, user: User, render: Templ
 
     tasks.send_confirmation_mail.delay(user.pk)
 
-    await update.message.reply_text(text=render("confirmation_message_is_sent"))
+    await update.message.reply_text(
+        text=render("confirmation_message_is_sent", user=user),
+    )
 
 
 @reply
-async def prompt_for_confirm(update: TextMessageUpdate, user: User, render: TemplateRenderFunction) -> None:
+async def prompt_for_confirm(update: TextMessageUpdate, render: TemplateRenderFunction) -> None:
     reply_markup = ReplyKeyboardMarkup([["Resend confirmation email"], ["Change email"]])
     await update.message.reply_text(render("waiting_for_confirmation"), reply_markup=reply_markup)
 
 
-class ConfirmedUserFilter(filters.BaseFilter):
+class ConfirmedUserFilter(filters.MessageFilter):
     def filter(self, message: HumanMessage) -> bool:
         user = get_user_instance(message.from_user, message.chat_id)
 
         return user.is_confirmed
 
 
-class UserWithoutEmailFilter(filters.BaseFilter):
+class UserWithoutEmailFilter(filters.MessageFilter):
     def filter(self, message: HumanMessage) -> bool:
         user = get_user_instance(message.from_user, message.chat_id)
 
         return user.email is None
 
 
-class NonConfirmedUserFilter(filters.BaseFilter):
+class NonConfirmedUserFilter(filters.MessageFilter):
     def filter(self, message: HumanMessage) -> bool:
         user = get_user_instance(message.from_user, message.chat_id)
 
         return user.email is not None and user.is_confirmed is False
 
 
-bot_token = os.getenv("BOT_TOKEN")
-if bot_token is None:
-    raise RuntimeError("Please set BOT_TOKEN")  # NOQA: TRY003
+def main() -> Application:
+    bot_token = os.getenv("BOT_TOKEN")
+    if bot_token is None:
+        raise RuntimeError("Please set BOT_TOKEN")  # NOQA: TRY003
 
-application = ApplicationBuilder().token(bot_token).build()
+    application = ApplicationBuilder().token(bot_token).build()
 
-application.add_handler(CommandHandler("start", start))
-application.add_handler(CommandHandler("reset", reset_email))
-application.add_handler(
-    MessageHandler(UserWithoutEmailFilter() & filters.TEXT & filters.Regex("@"), send_confirmation)
-)  # looks like email, so send confirmation to it
-application.add_handler(
-    MessageHandler(
-        NonConfirmedUserFilter() & filters.TEXT & filters.Regex("Resend confirmation email"),
-        resend,
-    )
-)  # resend confirmation email
-application.add_handler(
-    MessageHandler(
-        NonConfirmedUserFilter() & filters.TEXT & filters.Regex("Change email"),
-        reset_email,
-    )
-)  # change email
-application.add_handler(
-    MessageHandler(
-        NonConfirmedUserFilter() & filters.TEXT & filters.Regex(r"\w{8}\-\w{4}\-\w{4}\-\w{4}\-\w{12}"),
-        confirm_email,
-    )
-)  # confirm email
-application.add_handler(MessageHandler(UserWithoutEmailFilter(), prompt_for_setting_email))
-application.add_handler(MessageHandler(NonConfirmedUserFilter(), prompt_for_confirm))
-application.add_handler(MessageHandler(ConfirmedUserFilter() & filters.TEXT, send_text_message))
-application.add_handler(MessageHandler(ConfirmedUserFilter() & filters.PHOTO, send_photo))
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("reset", reset_email))
+    application.add_handler(
+        MessageHandler(UserWithoutEmailFilter() & filters.TEXT & filters.Regex("@"), send_confirmation)
+    )  # looks like email, so send confirmation to it
+    application.add_handler(
+        MessageHandler(
+            NonConfirmedUserFilter() & filters.TEXT & filters.Regex("Resend confirmation email"),
+            resend,
+        )
+    )  # resend confirmation email
+    application.add_handler(
+        MessageHandler(
+            NonConfirmedUserFilter() & filters.TEXT & filters.Regex("Change email"),
+            reset_email,
+        )
+    )  # change email
+    application.add_handler(
+        MessageHandler(
+            NonConfirmedUserFilter() & filters.TEXT & filters.Regex(r"\w{8}\-\w{4}\-\w{4}\-\w{4}\-\w{12}"),
+            confirm_email,
+        )
+    )  # confirm email
+    application.add_handler(MessageHandler(UserWithoutEmailFilter(), prompt_for_setting_email))
+    application.add_handler(MessageHandler(NonConfirmedUserFilter(), prompt_for_confirm))
+    application.add_handler(MessageHandler(ConfirmedUserFilter() & filters.TEXT, send_text_message))
+    application.add_handler(MessageHandler(ConfirmedUserFilter() & filters.PHOTO, send_photo))
+
+    return application
+
 
 if __name__ == "__main__":
+    enable_logging()
     create_tables()
-    application.run_polling()
+    init_sentry()
+
+    app = main()
+
+    app.run_polling()
