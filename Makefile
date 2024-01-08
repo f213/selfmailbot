@@ -9,7 +9,7 @@ lint:
 	poetry run toml-sort pyproject.toml --check
 
 dev:
-	poetry run watchmedo auto-restart --directory src --patterns '*.py' --recursive -- python -- -m src.app
+	poetry run watchmedo auto-restart --directory src --patterns '*.py' --recursive -- python -- -m src.bot
 
 worker:
 	poetry run watchmedo auto-restart --directory src --patterns '*.py' --recursive -- celery -- -A src.celery worker --purge

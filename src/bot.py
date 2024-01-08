@@ -9,7 +9,8 @@ from . import celery as tasks
 from .framework import reply
 from .helpers import download, enable_logging, get_subject, init_sentry
 from .models import User, create_tables, get_user_instance
-from .types import HumanMessage, MessageUpdate, TemplateRenderFunction, TextMessageUpdate
+
+from .t import HumanMessage, MessageUpdate, TemplateRenderFunction, TextMessageUpdate
 
 load_dotenv()
 
