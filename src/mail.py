@@ -1,12 +1,13 @@
+import os
 from io import BytesIO
 
 import pystmark
-from envparse import env
+from dotenv import load_dotenv
 
 from .models import User
 from .tpl import get_template
 
-env.read_envfile()
+load_dotenv()
 
 
 class MailException(Exception):
@@ -21,7 +22,7 @@ def send_mail(
     attachment_name: str = "",
 ) -> None:
     message = pystmark.Message(
-        sender=env("MAIL_FROM"),
+        sender=os.getenv("MAIL_FROM"),
         to=to,
         subject=subject,
         text=text,
@@ -30,7 +31,7 @@ def send_mail(
     if attachment is not None:
         message.attach_binary(attachment.read(), attachment_name)
 
-    result = pystmark.send(message, api_key=env("POSTMARK_API_KEY"))
+    result = pystmark.send(message, api_key=os.getenv("POSTMARK_API_KEY"))
     result.raise_for_status()
 
 

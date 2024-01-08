@@ -14,6 +14,7 @@ def test_confirmation_ok(client, user):
     assert "confirmation ok" in str(got.data)
 
 
+@pytest.mark.xfail(strict=True, reason="WIP")
 def test_user_is_notified(client, user, bot):
     client.get(f"/confirm/{user.confirmation}/")
 

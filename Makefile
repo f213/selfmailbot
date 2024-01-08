@@ -10,3 +10,6 @@ lint:
 
 dev:
 	poetry run watchmedo auto-restart --directory src --patterns '*.py' --recursive -- python -- -m src.app
+
+worker:
+	poetry run watchmedo auto-restart --directory src --patterns '*.py' --recursive -- celery -- -A src.celery worker --purge

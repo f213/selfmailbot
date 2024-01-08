@@ -1,17 +1,15 @@
 import contextlib
+import os
 import uuid
-from typing import Callable
 
 import peewee as pw
 import telegram
-from envparse import env
+from dotenv import load_dotenv
 from playhouse.db_url import connect
 
-from . import exceptions
+load_dotenv()
 
-env.read_envfile()
-
-db = connect(env("DATABASE_URL", cast=str, default="sqlite:///db.sqlite"))
+db = connect(os.getenv("DATABASE_URL"))
 
 
 class User(pw.Model):
@@ -46,24 +44,6 @@ def get_user_instance(user: telegram.User, chat_id: int) -> User:
 def get_user_by_confirmation_link(link: str) -> User | None:
     with contextlib.suppress(User.DoesNotExist):
         return User.get(User.confirmation == link)
-
-
-def with_user(fn: Callable[[telegram.Update, User], None]) -> Callable[[telegram.Update], None]:
-    """Decorator to add kwarg with
-    registered user instance to the telegram.ext handler"""
-
-    def call(update: telegram.Update) -> None:
-        if update.message is None:
-            raise exceptions.AnonymousMessage
-
-        user = get_user_instance(
-            update.message.from_user,  # type: ignore[arg-type]
-            chat_id=update.message.chat_id,
-        )
-
-        return fn(update, user)
-
-    return call
 
 
 def create_tables() -> None:

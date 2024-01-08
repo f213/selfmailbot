@@ -59,7 +59,7 @@ def models(db):
 def bot_app(bot):
     """Our bot app, adds the magic curring `call` method to call it with fake bot"""
     from src import app
-    app.call = lambda method, *args, **kwargs: getattr(app, method)(bot, *args, **kwargs)
+    app.call = lambda method, *args, **kwargs: getattr(app, method)(*args, **kwargs)
 
     return app
 
@@ -74,8 +74,7 @@ def bot(message):
 
 
 @pytest.fixture
-def app(bot, mocker):
-    mocker.patch('src.web.get_bot', return_value=bot)
+def app():
     from src.web import app
     app.testing = True
     return app

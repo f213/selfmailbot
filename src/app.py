@@ -22,14 +22,8 @@ async def start(update: TextMessageUpdate, render: TemplateRenderFunction) -> No
 
 
 @reply
-async def resend(update: TextMessageUpdate, user: User, render: TemplateRenderFunction) -> None:
-    tasks.send_confirmation_mail.delay(user.pk)
-    await update.message.reply_text(text=render("confirmation_message_is_sent"), reply_markup=ReplyKeyboardRemove())
-
-
-@reply
 async def reset_email(update: TextMessageUpdate, user: User, render: TemplateRenderFunction) -> None:
-    user.email = ""
+    user.email = None
     user.is_confirmed = False
     user.save()
 
@@ -67,9 +61,9 @@ async def send_text_message(update: TextMessageUpdate, user: User, render: Templ
 @reply
 async def send_photo(update: MessageUpdate, user: User, render: TemplateRenderFunction) -> None:
     file = await update.message.photo[-1].get_file()
-    photo = download(file)
+    photo = await download(file)
     subject = "Photo note to self"
-    text = ""
+    text = " "
 
     if update.message.caption is not None:
         text = update.message.caption.strip()
@@ -112,7 +106,7 @@ async def send_confirmation(update: TextMessageUpdate, user: User, render: Templ
 
 @reply
 async def prompt_for_confirm(update: TextMessageUpdate, render: TemplateRenderFunction) -> None:
-    reply_markup = ReplyKeyboardMarkup([["Resend confirmation email"], ["Change email"]])
+    reply_markup = ReplyKeyboardMarkup([["Change email"]])
     await update.message.reply_text(render("waiting_for_confirmation"), reply_markup=reply_markup)
 
 
@@ -149,12 +143,6 @@ def main() -> Application:
     application.add_handler(
         MessageHandler(UserWithoutEmailFilter() & filters.TEXT & filters.Regex("@"), send_confirmation)
     )  # looks like email, so send confirmation to it
-    application.add_handler(
-        MessageHandler(
-            NonConfirmedUserFilter() & filters.TEXT & filters.Regex("Resend confirmation email"),
-            resend,
-        )
-    )  # resend confirmation email
     application.add_handler(
         MessageHandler(
             NonConfirmedUserFilter() & filters.TEXT & filters.Regex("Change email"),

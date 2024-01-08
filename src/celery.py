@@ -1,27 +1,29 @@
+import os
 from io import BytesIO
 
 import sentry_sdk
 from celery import Celery
-from envparse import env
+from dotenv import load_dotenv
 from sentry_sdk.integrations.celery import CeleryIntegration
 
 from .mail import send_mail
 from .models import User
 from .tpl import get_template
 
-env.read_envfile()
+load_dotenv()
 
 celery = Celery("app")
 
 celery.conf.update(
-    broker_url=env("CELERY_BROKER_URL"),
-    task_always_eager=env("CELERY_ALWAYS_EAGER", cast=bool, default=False),
+    broker_url=os.getenv("CELERY_BROKER_URL"),
+    broker_connection_retry_on_startup=True,
+    task_always_eager=os.getenv("CELERY_ALWAYS_EAGER", default=False),
     task_serializer="pickle",  # we transfer binary data like photos or voice messages,
     accept_content=["pickle"],
 )
 
-if env("SENTRY_DSN", default=None) is not None:
-    sentry_sdk.init(env("SENTRY_DSN"), integrations=[CeleryIntegration()])
+if os.getenv("SENTRY_DSN") is not None:
+    sentry_sdk.init(os.getenv("SENTRY_DSN"), integrations=[CeleryIntegration()])
 
 
 @celery.task

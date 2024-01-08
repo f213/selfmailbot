@@ -3,11 +3,11 @@ from inspect import signature
 from typing import Any, Callable, Coroutine
 
 from telegram import Update
-from telegram.ext import CallbackContext
+from telegram.ext import CallbackContext, filters
 
 from .models import User, get_user_instance
 from .tpl import get_template
-from .types import MessageUpdate
+from .types import HumanMessage, MessageUpdate
 
 
 def _get_user(update: MessageUpdate) -> User:
@@ -44,4 +44,12 @@ def reply(fn: Callable) -> Callable[[Update, CallbackContext], Coroutine]:
     return call
 
 
-__all__ = ["reply"]
+class Filter(filters.MessageFilter):
+    def filter(self, message: HumanMessage) -> bool:  # type: ignore[override]
+        return False
+
+
+__all__ = [
+    "reply",
+    "Filter",
+]
