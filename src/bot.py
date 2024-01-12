@@ -165,9 +165,11 @@ def main() -> Application:
 
 
 if __name__ == "__main__":
-    enable_logging()
     create_tables()
-    init_sentry()
+    if os.getenv('BOT_ENV', default='dev') == 'production':
+        init_sentry()
+    else:
+        enable_logging()
 
     app = main()
 

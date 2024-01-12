@@ -43,6 +43,7 @@ USER nobody
 # Bot image
 #
 FROM base as bot
+ENV BOT_ENV production
 CMD python -m src.bot
 
 
