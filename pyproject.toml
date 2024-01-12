@@ -7,7 +7,7 @@ version = "2024.01.10"
 
 [tool.poetry.dependencies]
 celery = "^5.0"
-flask = "^3"
+flask = {extras = ["async"], version = "^3.0.0"}
 peewee = "^3.17.0"
 pystmark = "~0.5.3"
 python = "~3.12"
@@ -15,6 +15,7 @@ python-dotenv = "^1.0.0"
 python-telegram-bot = "^20.7"
 redis = "^5.0.1"
 sentry-sdk = "~1"
+uvicorn = "^0.25.0"
 
 [tool.poetry.group.dev.dependencies]
 faker = "^22.0.0"
@@ -47,6 +48,7 @@ ignore = [
     "PLW1508",
     "PT",
     "S101",
+    "S104",
     "S701",
 ]
 select = ["ALL"]

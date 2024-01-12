@@ -1,15 +1,18 @@
+import asyncio
 import os
 from pathlib import Path
 
+import uvicorn
+from asgiref.wsgi import WsgiToAsgi
 from dotenv import load_dotenv
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
+from flask import Flask, Response, request
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import Application, ApplicationBuilder, CommandHandler, MessageHandler, filters
 
 from . import celery as tasks
 from .framework import reply
 from .helpers import download, enable_logging, get_subject, init_sentry
 from .models import User, create_tables, get_user_instance
-
 from .t import HumanMessage, MessageUpdate, TemplateRenderFunction, TextMessageUpdate
 
 load_dotenv()
@@ -132,7 +135,7 @@ class NonConfirmedUserFilter(filters.MessageFilter):
         return user.email is not None and user.is_confirmed is False
 
 
-def main() -> Application:
+def bot_app() -> Application:
     bot_token = os.getenv("BOT_TOKEN")
     if bot_token is None:
         raise RuntimeError("Please set BOT_TOKEN")  # NOQA: TRY003
@@ -164,13 +167,48 @@ def main() -> Application:
     return application
 
 
+def flask_app_from_bot(bot_app: Application) -> uvicorn.Server:
+    flask_app = Flask("bot_webhook")
+    secret = os.getenv("INCOMING_WEBHOOK_SECRET")
+
+    @flask_app.post(f"/telegram-webhook-{secret}")
+    async def telegram() -> Response:
+        """Telegram updates"""
+        await bot_app.update_queue.put(Update.de_json(data=request.json, bot=bot_app.bot))
+        return Response(status=200)
+
+    return uvicorn.Server(
+        config=uvicorn.Config(
+            app=WsgiToAsgi(flask_app),  # type: ignore[no-untyped-call]
+            port=int(os.getenv("PORT", default=8000)),
+            host="0.0.0.0",
+        )
+    )
+
+
+async def prod(bot_app: Application) -> None:
+    enable_logging()
+    init_sentry()
+    flask = flask_app_from_bot(bot_app)
+    url = os.getenv("INCOMING_WEBHOOK_URL")
+    secret = os.getenv("INCOMING_WEBHOOK_SECRET")
+    async with bot:
+        await bot_app.bot.set_webhook(url=f"{url}/telegram-webhook-{secret}", allowed_updates=Update.ALL_TYPES)
+        await bot.start()
+        await flask.serve()
+        await bot.stop()
+
+
+def dev(bot: Application) -> None:
+    enable_logging()
+    bot.run_polling()
+
+
 if __name__ == "__main__":
     create_tables()
-    if os.getenv('BOT_ENV', default='dev') == 'production':
-        init_sentry()
+    bot = bot_app()
+
+    if os.getenv("BOT_ENV", default="dev") == "production":
+        asyncio.run(prod(bot))
     else:
-        enable_logging()
-
-    app = main()
-
-    app.run_polling()
+        dev(bot)

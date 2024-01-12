@@ -9,7 +9,7 @@ from .models import get_user_by_confirmation_link
 
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask("confirmation_webapp")
 
 if os.getenv("SENTRY_DSN") is not None:
     sentry_sdk.init(os.getenv("SENTRY_DSN"), integrations=[FlaskIntegration()])

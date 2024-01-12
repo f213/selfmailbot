@@ -6,8 +6,8 @@ from telegram import Update
 from telegram.ext import CallbackContext, filters
 
 from .models import User, get_user_instance
-from .tpl import get_template
 from .t import HumanMessage, MessageUpdate
+from .tpl import get_template
 
 
 def _get_user(update: MessageUpdate) -> User:
