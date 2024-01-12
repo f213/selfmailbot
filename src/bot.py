@@ -2,6 +2,7 @@ import asyncio
 import os
 from pathlib import Path
 
+import kombu
 import uvicorn
 from asgiref.wsgi import WsgiToAsgi
 from dotenv import load_dotenv
@@ -176,6 +177,12 @@ def flask_app_from_bot(bot_app: Application) -> uvicorn.Server:
         """Telegram updates"""
         await bot_app.update_queue.put(Update.de_json(data=request.json, bot=bot_app.bot))
         return Response(status=200)
+
+    @flask_app.get("/healthcheck")
+    def healthcheck() -> Response:
+        with kombu.Connection(os.getenv("CELERY_BROKER_URL")) as connection:
+            connection.connect()
+            return Response("ok")
 
     return uvicorn.Server(
         config=uvicorn.Config(

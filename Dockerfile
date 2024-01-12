@@ -44,6 +44,7 @@ USER nobody
 #
 FROM base as bot
 ENV BOT_ENV production
+HEALTHCHECK CMD wget -q -O /dev/null http://localhost:8000/healthcheck || exit 1
 CMD python -m src.bot
 
 
