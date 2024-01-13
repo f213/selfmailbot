@@ -1,10 +1,9 @@
 import os
 from io import BytesIO
 
-import sentry_sdk
 from celery import Celery
 from dotenv import load_dotenv
-from sentry_sdk.integrations.celery import CeleryIntegration
+from .helpers import init_sentry
 
 from .mail import send_mail
 from .models import User
@@ -22,9 +21,7 @@ celery.conf.update(
     accept_content=["pickle"],
 )
 
-if os.getenv("SENTRY_DSN") is not None:
-    sentry_sdk.init(os.getenv("SENTRY_DSN"), integrations=[CeleryIntegration()])
-
+init_sentry()
 
 @celery.task
 def send_confirmation_mail(user_id: int) -> None:

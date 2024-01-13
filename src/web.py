@@ -1,9 +1,6 @@
-import os
-
-import sentry_sdk
 from dotenv import load_dotenv
+from .helpers import init_sentry
 from flask import Flask, render_template
-from sentry_sdk.integrations.flask import FlaskIntegration
 
 from .models import get_user_by_confirmation_link
 
@@ -11,9 +8,7 @@ load_dotenv()
 
 app = Flask("confirmation_webapp")
 
-if os.getenv("SENTRY_DSN") is not None:
-    sentry_sdk.init(os.getenv("SENTRY_DSN"), integrations=[FlaskIntegration()])
-
+init_sentry()
 
 @app.route("/confirm/<key>/")
 def confirm(key: str) -> str:

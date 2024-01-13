@@ -7,6 +7,9 @@ from pathlib import Path
 
 import sentry_sdk
 import telegram
+from sentry_sdk.integrations.asyncio import AsyncioIntegration
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 
 def enable_logging() -> None:
@@ -20,7 +23,11 @@ def init_sentry() -> None:
     sentry_dsn = os.getenv("SENTRY_DSN", None)
 
     if sentry_dsn:
-        sentry_sdk.init(sentry_dsn)
+        sentry_sdk.init(sentry_dsn, integrations=[
+            AsyncioIntegration(),
+            CeleryIntegration(),
+            FlaskIntegration(),
+        ])
 
 
 def capfirst(x: str) -> str:
