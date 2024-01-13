@@ -1,1 +1,1 @@
-Confirmation message is sent to {{ user.email }}. Click the link in your inbox or copy key from confirmation email and send me, and we are all set up!
+Confirmation message is sent to {{ user.email }}. Click the link in your inbox or copy the key from confirmation email and send me, and we are all set up!

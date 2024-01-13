@@ -1,0 +1,116 @@
+name: CI
+
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.6.1
+
+      - name: Install python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          cache: 'poetry'
+          python-version-file: 'pyproject.toml'
+
+      - name: make sure poetry lockfile is up to date
+        run: poetry check --lock && echo Lockfile is ok, $(poetry --version)
+        shell: bash
+
+      - name: install deps
+        if: steps.setup-python.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root
+
+      - name: Run the linters
+        run: make lint
+
+  build-images:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version-file: 'pyproject.toml'
+
+      - name: Set up qemu
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Generate image identifier
+        id: image
+        uses: ASzc/change-string-case-action@v5
+        with:
+          string: ${{ github.repository_owner }}
+
+      - name: Log in to the container registry
+        uses: docker/login-action@v2
+        if: ${{ github.ref == 'refs/heads/master' }}
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build bot image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          target: bot
+          push: ${{ github.ref == 'refs/heads/master' }}
+          tags: |
+            ghcr.io/${{ steps.image.outputs.lowercase }}/selfmailbot-bot:latest
+            ghcr.io/${{ steps.image.outputs.lowercase }}/selfmailbot-bot:${{ github.sha }}
+
+          build-args: |
+            PYTHON_VERSION=${{ steps.setup-python.outputs.python-version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build web image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          target: web
+          push: ${{ github.ref == 'refs/heads/master' }}
+          tags: |
+            ghcr.io/${{ steps.image.outputs.lowercase }}/selfmailbot-web:latest
+            ghcr.io/${{ steps.image.outputs.lowercase }}/selfmailbot-web:${{ github.sha }}
+
+          build-args: |
+            PYTHON_VERSION=${{ steps.setup-python.outputs.python-version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build background processing worker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          target: web
+          push: ${{ github.ref == 'refs/heads/master' }}
+          tags: |
+            ghcr.io/${{ steps.image.outputs.lowercase }}/selfmailbot-worker:latest
+            ghcr.io/${{ steps.image.outputs.lowercase }}/selfmailbot-worker:${{ github.sha }}
+
+          build-args: |
+            PYTHON_VERSION=${{ steps.setup-python.outputs.python-version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

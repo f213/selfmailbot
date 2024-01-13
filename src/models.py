@@ -1,18 +1,20 @@
+import contextlib
+import os
 import uuid
 
 import peewee as pw
 import telegram
-from envparse import env
+from dotenv import load_dotenv
 from playhouse.db_url import connect
 
-env.read_envfile()
+load_dotenv()
 
-db = connect(env('DATABASE_URL', cast=str, default='sqlite:///db.sqlite'))
+db = connect(os.getenv("DATABASE_URL"))
 
 
 class User(pw.Model):
     pk = pw.BigIntegerField(index=True, unique=True)
-    created = pw.DateTimeField(constraints=[pw.SQL('DEFAULT CURRENT_TIMESTAMP')])
+    created = pw.DateTimeField(constraints=[pw.SQL("DEFAULT CURRENT_TIMESTAMP")])
     full_name = pw.CharField()
     username = pw.CharField(null=True)
     email = pw.CharField(index=True, null=True)
@@ -26,35 +28,23 @@ class User(pw.Model):
 
 
 def get_user_instance(user: telegram.User, chat_id: int) -> User:
-    instance, created = User.get_or_create(
+    """DB user instance based on telegram user data"""
+    return User.get_or_create(
         pk=user.id,
-        defaults=dict(
-            pk=user.id,
-            full_name=user.full_name,
-            username=user.username,
-            confirmation=str(uuid.uuid4()),
-            chat_id=chat_id,
-        ),
-    )
-    return instance
+        defaults={
+            "pk": user.id,
+            "full_name": user.full_name,
+            "username": user.username,
+            "confirmation": str(uuid.uuid4()),
+            "chat_id": chat_id,
+        },
+    )[0]
 
 
-def get_user_by_confirmation_link(link) -> User:
-    try:
+def get_user_by_confirmation_link(link: str) -> User | None:
+    with contextlib.suppress(User.DoesNotExist):
         return User.get(User.confirmation == link)
-    except User.DoesNotExist:
-        pass
 
 
-def with_user(fn):
-    """Decorator to add kwarg with registered user instance to the telegram.ext handler"""
-    def call(bot, update, *args, **kwargs):
-        kwargs['user'] = get_user_instance(update.message.from_user, chat_id=update.message.chat_id)
-
-        return fn(bot, update, *args, **kwargs)
-
-    return call
-
-
-def create_tables():
+def create_tables() -> None:
     db.create_tables([User])

@@ -1,54 +1,63 @@
+import logging
+import os
 import re
 import uuid
 from io import BytesIO
-from os import path
+from pathlib import Path
 
+import sentry_sdk
 import telegram
-
-from .models import with_user
-from .tpl import get_template
-
-
-def reply(fn):
-    """Add a with_user decorator and a render function with additional ctx"""
-
-    def _call(*args, user, **kwargs):
-        def render(tpl: str, **kwargs):
-            template = get_template('messages/' + tpl + '.txt')
-            return template.render(user=user, **kwargs)
-
-        return fn(*args, **kwargs, user=user, render=render)
-
-    return with_user(_call)
+from sentry_sdk.integrations.asyncio import AsyncioIntegration
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 
-def capfirst(x):
+def enable_logging() -> None:
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
+
+
+def init_sentry() -> None:
+    sentry_dsn = os.getenv("SENTRY_DSN", None)
+
+    if sentry_dsn:
+        sentry_sdk.init(
+            sentry_dsn,
+            integrations=[
+                AsyncioIntegration(),
+                CeleryIntegration(),
+                FlaskIntegration(),
+            ],
+        )
+
+
+def capfirst(x: str) -> str:
     """Capitalize the first letter of a string. Kindly borrowed from Django"""
     return x and str(x)[0].upper() + str(x)[1:]
 
 
-def get_subject(text):
+def get_subject(text: str) -> str:
     """Generate subject based on message text"""
-    words = [word.lower() for word in re.split(r'\s+', text)]
+    words = [word.lower() for word in re.split(r"\s+", text)]
     words[0] = capfirst(words[0])
 
     if len(words) > 1:
         if len(words) in [2, 3]:
-            return ' '.join(words[:3])
+            return " ".join(words[:3])
 
-        return ' '.join(words[:3]) + '...'
+        return " ".join(words[:3]) + "..."
 
     if len(words[0]) < 32:
         return words[0][:32]
 
-    return words[0][:32] + '...'  # first 32 characters
+    return words[0][:32] + "..."  # first 32 characters
 
 
-def download(file: telegram.File) -> BytesIO:
+async def download(file: telegram.File) -> BytesIO:
     attachment = BytesIO()
-    attachment.name = str(uuid.uuid4()) + '.' + path.splitext(file.file_path)[1]
+    attachment.name = str(uuid.uuid4()) + "." + Path(file.file_path).suffix  # type: ignore[arg-type]
 
-    file.download(out=attachment)
-    attachment.seek(0, 0)
-
-    return attachment
+    downloaded = await file.download_as_bytearray()
+    return BytesIO(downloaded)

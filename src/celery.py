@@ -1,41 +1,41 @@
-import sentry_sdk
-from celery import Celery
-from envparse import env
-from sentry_sdk.integrations.celery import CeleryIntegration
+import os
+from io import BytesIO
 
-from .helpers import get_subject
+from celery import Celery
+from dotenv import load_dotenv
+
+from .helpers import init_sentry
 from .mail import send_mail
 from .models import User
-from .recognize import recognize
 from .tpl import get_template
 
-env.read_envfile()
+load_dotenv()
 
-celery = Celery('app')
+celery = Celery("app")
 
 celery.conf.update(
-    broker_url=env('CELERY_BROKER_URL'),
-    task_always_eager=env('CELERY_ALWAYS_EAGER', cast=bool, default=False),
-    task_serializer='pickle',  # we transfer binary data like photos or voice messages,
-    accept_content=['pickle'],
+    broker_url=os.getenv("CELERY_BROKER_URL"),
+    broker_connection_retry_on_startup=True,
+    task_always_eager=os.getenv("CELERY_ALWAYS_EAGER", default=False),
+    task_serializer="pickle",  # we transfer binary data like photos or voice messages,
+    accept_content=["pickle"],
 )
 
-if env('SENTRY_DSN', default=None) is not None:
-    sentry_sdk.init(env('SENTRY_DSN'), integrations=[CeleryIntegration()])
+init_sentry()
 
 
 @celery.task
-def send_confirmation_mail(user_id):
+def send_confirmation_mail(user_id: int) -> None:
     user = User.get(User.pk == user_id)
     send_mail(
         to=user.email,
-        subject='[Selfmailbot] Confirm your email',
-        text=get_template('email/confirmation.txt').render(user=user),
+        subject="[Selfmailbot] Confirm your email",
+        text=get_template("email/confirmation.txt").render(user=user),
     )
 
 
 @celery.task
-def send_text(user_id, subject, text):
+def send_text(user_id: int, subject: str, text: str) -> None:
     user = User.get(User.pk == user_id)
 
     send_mail(
@@ -46,11 +46,8 @@ def send_text(user_id, subject, text):
 
 
 @celery.task
-def send_file(user_id, file, filename, subject, text=''):
+def send_file(user_id: int, file: BytesIO, filename: str, subject: str, text: str = " ") -> None:
     user = User.get(User.pk == user_id)
-
-    if not text:
-        text = ' '
 
     send_mail(
         to=user.email,
@@ -58,22 +55,4 @@ def send_file(user_id, file, filename, subject, text=''):
         subject=subject,
         attachment=file,
         attachment_name=filename,
-    )
-
-
-@celery.task
-def send_recognized_voice(user_id, file, duration):
-    if duration <= 60:
-        recognized_text = recognize(file.read())
-        subject = 'Voice: {}'.format(get_subject(recognized_text)) if recognized_text else 'Voice note to self'
-    else:
-        recognized_text = ''
-        subject = 'Voice note to self'
-
-    send_file(
-        user_id=user_id,
-        file=file,
-        filename='voice.oga',
-        subject=subject,
-        text=recognized_text,
     )
