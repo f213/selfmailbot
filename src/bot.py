@@ -195,7 +195,6 @@ def flask_app_from_bot(bot_app: Application) -> uvicorn.Server:
 
 
 async def prod(bot_app: Application) -> None:
-    enable_logging()
     init_sentry()
     flask = flask_app_from_bot(bot_app)
     url = os.getenv("INCOMING_WEBHOOK_URL")

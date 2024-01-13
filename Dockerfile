@@ -31,6 +31,9 @@ RUN apt-get update \
  && apt-get -y install wget \
  && rm -rf /var/lib/apt/lists/*
 
+ENV BOT_ENV production
+ENV DATABASE_URL sqlite:///db/selfmailbot.sqlite
+VOLUME /db
 RUN pip install --no-cache-dir --upgrade pip
 COPY --from=deps-compile /requirements.txt /
 RUN pip install --no-cache-dir -r requirements.txt
@@ -43,7 +46,6 @@ USER nobody
 # Bot image
 #
 FROM base as bot
-ENV BOT_ENV production
 HEALTHCHECK CMD wget -q -O /dev/null http://localhost:8000/healthcheck || exit 1
 CMD python -m src.bot
 
