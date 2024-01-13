@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
-from .helpers import init_sentry
 from flask import Flask, render_template
 
+from .helpers import init_sentry
 from .models import get_user_by_confirmation_link
 
 load_dotenv()
@@ -9,6 +9,7 @@ load_dotenv()
 app = Flask("confirmation_webapp")
 
 init_sentry()
+
 
 @app.route("/confirm/<key>/")
 def confirm(key: str) -> str:

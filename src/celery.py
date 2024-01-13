@@ -3,8 +3,8 @@ from io import BytesIO
 
 from celery import Celery
 from dotenv import load_dotenv
-from .helpers import init_sentry
 
+from .helpers import init_sentry
 from .mail import send_mail
 from .models import User
 from .tpl import get_template
@@ -22,6 +22,7 @@ celery.conf.update(
 )
 
 init_sentry()
+
 
 @celery.task
 def send_confirmation_mail(user_id: int) -> None:

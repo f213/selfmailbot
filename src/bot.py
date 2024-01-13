@@ -14,20 +14,21 @@ from . import celery as tasks
 from .framework import reply
 from .helpers import download, enable_logging, get_subject, init_sentry
 from .models import User, create_tables, get_user_instance
-from .t import HumanMessage, MessageUpdate, TemplateRenderFunction, TextMessageUpdate
+from .t import HumanMessage, MessageUpdate, TextMessageUpdate
+from .tpl import render
 
 load_dotenv()
 
 
 @reply
-async def start(update: TextMessageUpdate, render: TemplateRenderFunction) -> None:
+async def start(update: TextMessageUpdate) -> None:
     await update.message.reply_text(
         text=render("hello_message"),
     )
 
 
 @reply
-async def reset_email(update: TextMessageUpdate, user: User, render: TemplateRenderFunction) -> None:
+async def reset_email(update: TextMessageUpdate, user: User) -> None:
     user.email = None
     user.is_confirmed = False
     user.save()
@@ -36,7 +37,7 @@ async def reset_email(update: TextMessageUpdate, user: User, render: TemplateRen
 
 
 @reply
-async def confirm_email(update: TextMessageUpdate, user: User, render: TemplateRenderFunction) -> None:
+async def confirm_email(update: TextMessageUpdate, user: User) -> None:
     key = update.message.text.strip()
 
     if user.confirmation != key:
@@ -50,7 +51,7 @@ async def confirm_email(update: TextMessageUpdate, user: User, render: TemplateR
 
 
 @reply
-async def send_text_message(update: TextMessageUpdate, user: User, render: TemplateRenderFunction) -> None:
+async def send_text_message(update: TextMessageUpdate, user: User) -> None:
     text = update.message.text
     subject = get_subject(text)
 
@@ -64,7 +65,7 @@ async def send_text_message(update: TextMessageUpdate, user: User, render: Templ
 
 
 @reply
-async def send_photo(update: MessageUpdate, user: User, render: TemplateRenderFunction) -> None:
+async def send_photo(update: MessageUpdate, user: User) -> None:
     file = await update.message.photo[-1].get_file()
     photo = await download(file)
     subject = "Photo note to self"
@@ -87,12 +88,12 @@ async def send_photo(update: MessageUpdate, user: User, render: TemplateRenderFu
 
 
 @reply
-async def prompt_for_setting_email(update: TextMessageUpdate, render: TemplateRenderFunction) -> None:
+async def prompt_for_setting_email(update: TextMessageUpdate) -> None:
     await update.message.reply_text(text=render("please_send_email"))
 
 
 @reply
-async def send_confirmation(update: TextMessageUpdate, user: User, render: TemplateRenderFunction) -> None:
+async def send_confirmation(update: TextMessageUpdate, user: User) -> None:
     email = update.message.text.strip()
 
     if User.select().where(User.email == email):
@@ -110,7 +111,7 @@ async def send_confirmation(update: TextMessageUpdate, user: User, render: Templ
 
 
 @reply
-async def prompt_for_confirm(update: TextMessageUpdate, render: TemplateRenderFunction) -> None:
+async def prompt_for_confirm(update: TextMessageUpdate) -> None:
     reply_markup = ReplyKeyboardMarkup([["Change email"]])
     await update.message.reply_text(render("waiting_for_confirmation"), reply_markup=reply_markup)
 

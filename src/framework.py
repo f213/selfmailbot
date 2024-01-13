@@ -7,7 +7,6 @@ from telegram.ext import CallbackContext, filters
 
 from .models import User, get_user_instance
 from .t import HumanMessage, MessageUpdate
-from .tpl import get_template
 
 
 def _get_user(update: MessageUpdate) -> User:
@@ -15,11 +14,6 @@ def _get_user(update: MessageUpdate) -> User:
         update.message.from_user,  # type: ignore[arg-type]
         chat_id=update.message.chat_id,
     )
-
-
-def _render(tpl: str, **kwargs: str | User) -> str:
-    template = get_template("messages/" + tpl + ".txt")
-    return template.render(**kwargs)
 
 
 def reply(fn: Callable) -> Callable[[Update, CallbackContext], Coroutine]:
@@ -35,9 +29,6 @@ def reply(fn: Callable) -> Callable[[Update, CallbackContext], Coroutine]:
 
         if "context" in params:
             kwargs["context"] = context
-
-        if "render" in params:
-            kwargs["render"] = _render
 
         return await fn(**kwargs)
 

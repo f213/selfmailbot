@@ -23,11 +23,14 @@ def init_sentry() -> None:
     sentry_dsn = os.getenv("SENTRY_DSN", None)
 
     if sentry_dsn:
-        sentry_sdk.init(sentry_dsn, integrations=[
-            AsyncioIntegration(),
-            CeleryIntegration(),
-            FlaskIntegration(),
-        ])
+        sentry_sdk.init(
+            sentry_dsn,
+            integrations=[
+                AsyncioIntegration(),
+                CeleryIntegration(),
+                FlaskIntegration(),
+            ],
+        )
 
 
 def capfirst(x: str) -> str:
