@@ -114,3 +114,16 @@ jobs:
             PYTHON_VERSION=${{ steps.setup-python.outputs.python-version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build-images
+    if: github.ref == 'refs/heads/master' && github.repository_owner == 'f213'
+    runs-on: ubuntu-latest
+    steps:
+      - name: update production images
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: selfmailbot
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: sudo /home/selfmailbot/update_images.sh ${{ github.sha }}
