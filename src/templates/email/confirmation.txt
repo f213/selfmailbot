@@ -1,6 +1,6 @@
 Hey!
 
-To confirm your email with selfmailbot, please click the following link: https://selfmailbot.co/confirm/{{ user.confirmation }}/ or just copy following confirmation key and send it to selfmailbot in telegram chat:
+To confirm your email with selfmailbot, please click the following link: https://confirm.selfmailbot.co/{{ user.confirmation }}/ or just copy following confirmation key and send it to selfmailbot in telegram chat:
 
 {{ user.confirmation }}
 
