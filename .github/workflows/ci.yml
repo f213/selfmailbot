@@ -104,7 +104,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          target: web
+          target: worker
           push: ${{ github.ref == 'refs/heads/master' }}
           tags: |
             ghcr.io/${{ steps.image.outputs.lowercase }}/selfmailbot-worker:latest
