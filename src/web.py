@@ -9,7 +9,7 @@ from .models import get_user_by_confirmation_link
 
 load_dotenv()
 
-app = Flask("confirmation_webapp")
+app = Flask("confirmation_webapp", template_folder="src/templates/html")
 
 init_sentry()
 
@@ -19,16 +19,16 @@ def confirm(key: str) -> str:
     user = get_user_by_confirmation_link(key)
 
     if user is None:
-        return render_template("html/confirmation_failure.html")
+        return render_template("confirmation_failure.html")
 
     user.is_confirmed = True
     user.save()
 
-    return render_template("html/confirmation_ok.html")
+    return render_template("confirmation_ok.html")
 
 
 @app.route("/healthcheck/")
 def healthcheck() -> str:
     with kombu.Connection(os.getenv("CELERY_BROKER_URL")) as connection:
         connection.connect()
-        return "ok"
+        return render_template("ok.html")
