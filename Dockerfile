@@ -63,5 +63,6 @@ CMD celery -A src.celery worker -c ${CONCURENCY:-4} -n "${celery}@%h" --max-task
 #
 FROM base as web
 COPY --from=uwsgi-compile /uwsgi /usr/local/bin/
+HEALTHCHECK CMD wget -q -O /dev/null http://localhost:8000/healthcheck/ || exit 1
 CMD uwsgi --master --http :8000 --module src.web:app
 

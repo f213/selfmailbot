@@ -13,3 +13,6 @@ dev:
 
 worker:
 	poetry run watchmedo auto-restart --directory src --patterns '*.py' --recursive -- celery -- -A src.celery worker --purge
+
+web:
+	poetry run flask --app src.web run --debug --port 8090

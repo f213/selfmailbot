@@ -1,3 +1,6 @@
+import os
+
+import kombu
 from dotenv import load_dotenv
 from flask import Flask, render_template
 
@@ -22,3 +25,10 @@ def confirm(key: str) -> str:
     user.save()
 
     return render_template("html/confirmation_ok.html")
+
+
+@app.route("/healthcheck/")
+def healthcheck() -> str:
+    with kombu.Connection(os.getenv("CELERY_BROKER_URL")) as connection:
+        connection.connect()
+        return "ok"
