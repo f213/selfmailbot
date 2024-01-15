@@ -1,9 +1,11 @@
 import os
 from io import BytesIO
 
+import httpx
 from celery import Celery
 from dotenv import load_dotenv
 
+from .exceptions import WrongTelegramResponse
 from .helpers import init_sentry
 from .mail import send_mail
 from .models import User
@@ -56,3 +58,21 @@ def send_file(user_id: int, file: BytesIO, filename: str, subject: str, text: st
         attachment=file,
         attachment_name=filename,
     )
+
+
+@celery.task
+def react(chat_id: str, message_id: int, reaction: str) -> None:
+    """Temporary task while PTB rolls out their own reactions"""
+    bot_token = os.getenv("BOT_TOKEN")
+
+    response = httpx.post(
+        f"https://api.telegram.org/bot{bot_token}/setMessageReaction",
+        json={
+            "chat_id": chat_id,
+            "message_id": message_id,
+            "reaction": [{"type": "emoji", "emoji": reaction}],
+        },
+    )
+
+    if response.status_code != 200:
+        raise WrongTelegramResponse

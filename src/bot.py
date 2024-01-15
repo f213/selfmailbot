@@ -55,12 +55,22 @@ async def send_text_message(update: TextMessageUpdate, user: User) -> None:
     text = update.message.text
     subject = get_subject(text)
 
-    tasks.send_text.delay(
+    send = tasks.send_text.si(
         user_id=user.pk,
         subject=subject,
         text=text,
     )
-    await update.message.reply_text(text=render("message_is_sent", invite_to_change_email=("@" in text)))
+    if "@" in text:
+        send.apply_async()
+        await update.message.reply_text(text=render("message_is_sent", invite_to_change_email=("@" in text)))
+    else:
+        send.apply_async(
+            link=tasks.react.si(
+                chat_id=update.message.chat_id,
+                message_id=update.message.message_id,
+                reaction="👌",
+            )
+        )
 
 
 @reply
@@ -75,14 +85,19 @@ async def send_photo(update: MessageUpdate, user: User) -> None:
         if text:
             subject = f"Photo: {get_subject(text)}"
 
-    await update.message.reply_text(text=render("photo_is_sent"))
-
-    tasks.send_file.delay(
-        user_id=user.pk,
-        file=photo,
-        filename=Path(file.file_path).name,  # type: ignore[arg-type]
-        subject=subject,
-        text=text,
+    tasks.send_file.apply_async(
+        kwargs={
+            "user_id": user.pk,
+            "file": photo,
+            "filename": Path(file.file_path).name,  # type: ignore[arg-type]
+            "subject": subject,
+            "text": text,
+        },
+        link=tasks.react.si(
+            chat_id=update.message.chat_id,
+            message_id=update.message.message_id,
+            reaction="👌",
+        ),
     )
 
 
