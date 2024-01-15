@@ -55,13 +55,12 @@ async def send_text_message(update: TextMessageUpdate, user: User) -> None:
     text = update.message.text
     subject = get_subject(text)
 
-    await update.message.reply_text(text=render("message_is_sent"))
-
     tasks.send_text.delay(
         user_id=user.pk,
         subject=subject,
         text=text,
     )
+    await update.message.reply_text(text=render("message_is_sent", invite_to_change_email=("@" in text)))
 
 
 @reply
@@ -116,13 +115,6 @@ async def prompt_for_confirm(update: TextMessageUpdate) -> None:
     await update.message.reply_text(render("waiting_for_confirmation"), reply_markup=reply_markup)
 
 
-class ConfirmedUserFilter(filters.MessageFilter):
-    def filter(self, message: HumanMessage) -> bool:
-        user = get_user_instance(message.from_user, message.chat_id)
-
-        return user.is_confirmed
-
-
 class UserWithoutEmailFilter(filters.MessageFilter):
     def filter(self, message: HumanMessage) -> bool:
         user = get_user_instance(message.from_user, message.chat_id)
@@ -130,11 +122,11 @@ class UserWithoutEmailFilter(filters.MessageFilter):
         return user.email is None
 
 
-class NonConfirmedUserFilter(filters.MessageFilter):
+class ConfirmedUserFilter(filters.MessageFilter):
     def filter(self, message: HumanMessage) -> bool:
         user = get_user_instance(message.from_user, message.chat_id)
 
-        return user.email is not None and user.is_confirmed is False
+        return user.email is not None and user.is_confirmed is True
 
 
 def bot_app() -> Application:
@@ -151,18 +143,18 @@ def bot_app() -> Application:
     )  # looks like email, so send confirmation to it
     application.add_handler(
         MessageHandler(
-            NonConfirmedUserFilter() & filters.TEXT & filters.Regex("Change email"),
+            ~ConfirmedUserFilter() & filters.TEXT & filters.Regex("Change email"),
             reset_email,
         )
     )  # change email
     application.add_handler(
         MessageHandler(
-            NonConfirmedUserFilter() & filters.TEXT & filters.Regex(r"\w{8}\-\w{4}\-\w{4}\-\w{4}\-\w{12}"),
+            ~ConfirmedUserFilter() & filters.TEXT & filters.Regex(r"\w{8}\-\w{4}\-\w{4}\-\w{4}\-\w{12}"),
             confirm_email,
         )
     )  # confirm email
     application.add_handler(MessageHandler(UserWithoutEmailFilter(), prompt_for_setting_email))
-    application.add_handler(MessageHandler(NonConfirmedUserFilter(), prompt_for_confirm))
+    application.add_handler(MessageHandler(~ConfirmedUserFilter(), prompt_for_confirm))
     application.add_handler(MessageHandler(ConfirmedUserFilter() & filters.TEXT, send_text_message))
     application.add_handler(MessageHandler(ConfirmedUserFilter() & filters.PHOTO, send_photo))
 

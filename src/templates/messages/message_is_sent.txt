@@ -1,1 +1,1 @@
-Ok, sending
+Ok, sending{% if invite_to_change_email %}. Going to change your email? Hit /reset{% endif %}
