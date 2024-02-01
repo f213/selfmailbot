@@ -20,7 +20,7 @@ uvicorn = "^0.27.0"
 [tool.poetry.group.dev.dependencies]
 ipython = "^8.19.0"
 mypy = "^1.8.0"
-ruff = "^0.1.11"
+ruff = "^0.2.0"
 toml-sort = "^0.23.1"
 watchdog = {extras = ["watchmedo"], version = "^3.0.0"}
 
