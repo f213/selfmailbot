@@ -444,13 +444,13 @@ files = [
 
 [[package]]
 name = "ipython"
-version = "8.22.0"
+version = "8.22.1"
 description = "IPython: Productive Interactive Computing"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "ipython-8.22.0-py3-none-any.whl", hash = "sha256:a3e962e1d42927f5825dab048f4de617f5856cf3272fff1cb9245bea0c785a46"},
-    {file = "ipython-8.22.0.tar.gz", hash = "sha256:bc649987e35a75ecccab7a245d7403710e3a289384c268d6d846ab8933ca0811"},
+    {file = "ipython-8.22.1-py3-none-any.whl", hash = "sha256:869335e8cded62ffb6fac8928e5287a05433d6462e3ebaac25f4216474dd6bc4"},
+    {file = "ipython-8.22.1.tar.gz", hash = "sha256:39c6f9efc079fb19bfb0f17eee903978fe9a290b1b82d68196c641cecb76ea22"},
 ]
 
 [package.dependencies]
@@ -462,7 +462,7 @@ pexpect = {version = ">4.3", markers = "sys_platform != \"win32\" and sys_platfo
 prompt-toolkit = ">=3.0.41,<3.1.0"
 pygments = ">=2.4.0"
 stack-data = "*"
-traitlets = ">=5"
+traitlets = ">=5.13.0"
 
 [package.extras]
 all = ["ipython[black,doc,kernel,nbconvert,nbformat,notebook,parallel,qtconsole,terminal]", "ipython[test,test-extra]"]
