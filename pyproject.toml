@@ -22,7 +22,7 @@ ipython = "^8.19.0"
 mypy = "^1.8.0"
 ruff = "^0.5.0"
 toml-sort = "^0.23.1"
-watchdog = {extras = ["watchmedo"], version = "^3.0.0"}
+watchdog = {extras = ["watchmedo"], version = "^4.0.0"}
 
 [tool.ruff]
 line-length = 160
