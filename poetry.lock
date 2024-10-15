@@ -719,12 +719,12 @@ testing = ["docopt", "pytest (<6.0.0)"]
 
 [[package]]
 name = "peewee"
-version = "3.17.6"
+version = "3.17.7"
 description = "a little orm"
 optional = false
 python-versions = "*"
 files = [
-    {file = "peewee-3.17.6.tar.gz", hash = "sha256:cea5592c6f4da1592b7cff8eaf655be6648a1f5857469e30037bf920c03fb8fb"},
+    {file = "peewee-3.17.7.tar.gz", hash = "sha256:6aefc700bd530fc6ac23fa19c9c5b47041751d92985b799169c8e318e97eabaa"},
 ]
 
 [[package]]
