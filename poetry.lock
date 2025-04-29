@@ -720,12 +720,12 @@ testing = ["docopt", "pytest (<6.0.0)"]
 
 [[package]]
 name = "peewee"
-version = "3.17.9"
+version = "3.18.0"
 description = "a little orm"
 optional = false
 python-versions = "*"
 files = [
-    {file = "peewee-3.17.9.tar.gz", hash = "sha256:fe15cd001758e324c8e3ca8c8ed900e7397c2907291789e1efc383e66b9bc7a8"},
+    {file = "peewee-3.18.0.tar.gz", hash = "sha256:628ee60776df2d37821c1bcc4e3cc9b53932fa4e5caf9d132ece48df5367c1c0"},
 ]
 
 [[package]]
@@ -1253,4 +1253,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "9ed2643bf13718f7f8ae9537e1b2f67d967a9149db947742814e92e005ecf786"
+content-hash = "2bc699ed8efdc3c630c5ad45272ffc4429cf01a9bb9354b5edb88d63e6b7c63e"
