@@ -721,13 +721,19 @@ testing = ["docopt", "pytest (<6.0.0)"]
 
 [[package]]
 name = "peewee"
-version = "3.18.3"
+version = "3.19.0"
 description = "a little orm"
 optional = false
 python-versions = "*"
 files = [
-    {file = "peewee-3.18.3.tar.gz", hash = "sha256:62c3d93315b1a909360c4b43c3a573b47557a1ec7a4583a71286df2a28d4b72e"},
+    {file = "peewee-3.19.0-py3-none-any.whl", hash = "sha256:de220b94766e6008c466e00ce4ba5299b9a832117d9eb36d45d0062f3cfd7417"},
+    {file = "peewee-3.19.0.tar.gz", hash = "sha256:f88292a6f0d7b906cb26bca9c8599b8f4d8920ebd36124400d0cbaaaf915511f"},
 ]
+
+[package.extras]
+mysql = ["pymysql"]
+postgres = ["psycopg2-binary"]
+psycopg3 = ["psycopg[binary]"]
 
 [[package]]
 name = "pexpect"
@@ -1274,4 +1280,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "f4b6b1ae6be54df3028c0fa98c12668d47ab421adcc5e5df4106268c2033026f"
+content-hash = "226a6ccadc8783c1fd551a5a9069ecc68f11341af7ec2e05685dd1c310376795"
