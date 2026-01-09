@@ -58,6 +58,7 @@ async def send_text_message(update: TextMessageUpdate, user: User) -> None:
     send = tasks.send_text.si(
         user_id=user.pk,
         subject=subject,
+        reply_to=user.email,
         text=text,
     )
     if "@" in text:

@@ -14,10 +14,11 @@ class MailException(Exception):
     pass
 
 
-def send_mail(
+def send_mail(  # NOQA: PLR0913
     to: str,
     subject: str,
     text: str,
+    reply_to: str | None = None,
     attachment: BytesIO | None = None,
     attachment_name: str = "",
 ) -> None:
@@ -26,6 +27,7 @@ def send_mail(
         to=to,
         subject=subject,
         text=text,
+        reply_to=reply_to if reply_to is not None else os.getenv("MAIL_FROM"),
     )
 
     if attachment is not None:
