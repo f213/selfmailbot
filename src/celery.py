@@ -37,12 +37,13 @@ def send_confirmation_mail(user_id: int) -> None:
 
 
 @celery.task
-def send_text(user_id: int, subject: str, text: str) -> None:
+def send_text(user_id: int, subject: str, text: str, reply_to: str) -> None:
     user = User.get(User.pk == user_id)
 
     send_mail(
         to=user.email,
         subject=subject,
+        reply_to=reply_to,
         text=text,
     )
 
