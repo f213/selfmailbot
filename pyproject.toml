@@ -14,7 +14,7 @@ python = "~3.12"
 python-dotenv = "^1.0.0"
 python-telegram-bot = "^20.7"
 redis = "^5.0.1"
-sentry-sdk = "~1"
+sentry-sdk = "~2.53.0"
 uvicorn = "^0.41.0"
 
 [tool.poetry.group.dev.dependencies]
