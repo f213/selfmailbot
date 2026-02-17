@@ -18,7 +18,7 @@ sentry-sdk = "~1"
 uvicorn = "^0.41.0"
 
 [tool.poetry.group.dev.dependencies]
-ipython = "^8.19.0"
+ipython = "^9.0.0"
 mypy = "^1.8.0"
 ruff = "^0.5.0"
 toml-sort = "^0.24.0"
