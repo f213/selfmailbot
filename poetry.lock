@@ -721,16 +721,20 @@ testing = ["docopt", "pytest (<6.0.0)"]
 
 [[package]]
 name = "peewee"
-version = "3.19.0"
+version = "4.0.0"
 description = "a little orm"
 optional = false
 python-versions = "*"
 files = [
-    {file = "peewee-3.19.0-py3-none-any.whl", hash = "sha256:de220b94766e6008c466e00ce4ba5299b9a832117d9eb36d45d0062f3cfd7417"},
-    {file = "peewee-3.19.0.tar.gz", hash = "sha256:f88292a6f0d7b906cb26bca9c8599b8f4d8920ebd36124400d0cbaaaf915511f"},
+    {file = "peewee-4.0.0-py3-none-any.whl", hash = "sha256:6de14ff11ab50c3152dc1d4e12628c1b28c1e03ff4e4213e463429bfcd7340b6"},
+    {file = "peewee-4.0.0.tar.gz", hash = "sha256:bc2722abf32a8074362c346fc8a95f2d34a9587873e81025b6429676c32044b6"},
 ]
 
 [package.extras]
+aiomysql = ["aiomysql", "greenlet"]
+aiosqlite = ["aiosqlite", "greenlet"]
+asyncpg = ["asyncpg", "greenlet"]
+cysqlite = ["cysqlite"]
 mysql = ["pymysql"]
 postgres = ["psycopg2-binary"]
 psycopg3 = ["psycopg[binary]"]
@@ -1280,4 +1284,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "0690c698aa82e8a3d89cc49251c1b1286cc911b1213a0b78e241cb7503c577fd"
+content-hash = "d8b001dad403db0a4821b0cff638b997b82861eb561e93cff6f2a94c25a2d780"

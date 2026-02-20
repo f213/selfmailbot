@@ -8,7 +8,7 @@ version = "2024.01.10"
 [tool.poetry.dependencies]
 celery = "~5.3.6"
 flask = {extras = ["async"], version = "^3.0.0"}
-peewee = "~3.19.0"
+peewee = "~4.0.0"
 pystmark = "~0.5.3"
 python = "~3.12"
 python-dotenv = "^1.0.0"
