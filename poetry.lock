@@ -1102,13 +1102,13 @@ tests = ["cython", "littleutils", "pygments", "pytest", "typeguard"]
 
 [[package]]
 name = "toml-sort"
-version = "0.24.3"
+version = "0.24.4"
 description = "Toml sorting library"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "toml_sort-0.24.3-py3-none-any.whl", hash = "sha256:d70642f54827b4c17a6cde788dcb45d598c1eb9833544a2fcec5eb7b0b744ed4"},
-    {file = "toml_sort-0.24.3.tar.gz", hash = "sha256:74c3cab5c1ecaf76c8239addc15342de548fb39598694f1298550d0fe2673a81"},
+    {file = "toml_sort-0.24.4-py3-none-any.whl", hash = "sha256:125aa5fb94f33c542c6901040456145dd38f79bbb310b56b436a93057d30a739"},
+    {file = "toml_sort-0.24.4.tar.gz", hash = "sha256:429b69f5b98b7047a11380c80ecf0838556bdea1a8902d0be564961c48841423"},
 ]
 
 [package.dependencies]
