@@ -73,6 +73,7 @@ def react(chat_id: str, message_id: int, reaction: str) -> None:
             "message_id": message_id,
             "reaction": [{"type": "emoji", "emoji": reaction}],
         },
+        timeout=10.0,
     )
 
     if response.status_code != 200:
