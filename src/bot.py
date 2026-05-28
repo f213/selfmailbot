@@ -104,6 +104,7 @@ async def send_photo(update: MessageUpdate, user: User) -> None:
 
 @reply
 async def send_document(update: MessageUpdate, user: User) -> None:
+    assert update.message.document is not None
     file = await update.message.document.get_file()
     document = await download(file)
     filename = update.message.document.file_name or Path(file.file_path).name  # type: ignore[arg-type]
