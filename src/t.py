@@ -1,4 +1,4 @@
-from telegram import Message, PhotoSize, Update, User
+from telegram import Document, Message, PhotoSize, Update, User
 
 
 class HumanMessage(Message):
@@ -24,3 +24,12 @@ class PhotoMessage(HumanMessage):
 
 class FileMessageUpdate(MessageUpdate):
     message: PhotoMessage
+
+
+class DocumentMessage(HumanMessage):
+    document: Document
+    caption: str | None
+
+
+class DocumentMessageUpdate(MessageUpdate):
+    message: DocumentMessage
