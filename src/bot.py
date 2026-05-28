@@ -103,6 +103,35 @@ async def send_photo(update: MessageUpdate, user: User) -> None:
 
 
 @reply
+async def send_document(update: MessageUpdate, user: User) -> None:
+    file = await update.message.document.get_file()
+    document = await download(file)
+    filename = update.message.document.file_name or Path(file.file_path).name  # type: ignore[arg-type]
+    subject = f"File: {filename}"
+    text = " "
+
+    if update.message.caption is not None:
+        text = update.message.caption.strip()
+        if text:
+            subject = f"File: {get_subject(text)}"
+
+    tasks.send_file.apply_async(
+        kwargs={
+            "user_id": user.pk,
+            "file": document,
+            "filename": filename,
+            "subject": subject,
+            "text": text,
+        },
+        link=tasks.react.si(
+            chat_id=update.message.chat_id,
+            message_id=update.message.message_id,
+            reaction="👌",
+        ),
+    )
+
+
+@reply
 async def prompt_for_setting_email(update: TextMessageUpdate) -> None:
     await update.message.reply_text(text=render("please_send_email"))
 
@@ -173,6 +202,7 @@ def bot_app() -> Application:
     application.add_handler(MessageHandler(~ConfirmedUserFilter(), prompt_for_confirm))
     application.add_handler(MessageHandler(ConfirmedUserFilter() & filters.TEXT, send_text_message))
     application.add_handler(MessageHandler(ConfirmedUserFilter() & filters.PHOTO, send_photo))
+    application.add_handler(MessageHandler(ConfirmedUserFilter() & filters.Document.ALL, send_document))
 
     return application
 
