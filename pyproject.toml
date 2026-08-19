@@ -10,7 +10,7 @@ celery = "~5.3.6"
 flask = {extras = ["async"], version = "^3.0.0"}
 peewee = "~3.19.0"
 pystmark = "~0.5.3"
-python = "~3.12"
+python = "~3.14.0"
 python-dotenv = "^1.0.0"
 python-telegram-bot = "^20.7"
 redis = "^5.0.1"
