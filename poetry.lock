@@ -1102,27 +1102,27 @@ tests = ["cython", "littleutils", "pygments", "pytest", "typeguard"]
 
 [[package]]
 name = "toml-sort"
-version = "0.24.4"
+version = "0.25.0"
 description = "Toml sorting library"
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 files = [
-    {file = "toml_sort-0.24.4-py3-none-any.whl", hash = "sha256:125aa5fb94f33c542c6901040456145dd38f79bbb310b56b436a93057d30a739"},
-    {file = "toml_sort-0.24.4.tar.gz", hash = "sha256:429b69f5b98b7047a11380c80ecf0838556bdea1a8902d0be564961c48841423"},
+    {file = "toml_sort-0.25.0-py3-none-any.whl", hash = "sha256:96de33d49795a730297a1a5cba75ad9f251a7b07e75002f8a2fcc127fa7d43bd"},
+    {file = "toml_sort-0.25.0.tar.gz", hash = "sha256:08ffe893feba7dc1773c61046b76f63561a6204e0162cd067c4a0d681d9198c7"},
 ]
 
 [package.dependencies]
-tomlkit = ">=0.13.2"
+tomlrt = ">=2.2.0"
 
 [[package]]
-name = "tomlkit"
-version = "0.13.2"
-description = "Style preserving TOML library"
+name = "tomlrt"
+version = "2.2.9"
+description = "A format-preserving TOML reader and writer for Python."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.10"
 files = [
-    {file = "tomlkit-0.13.2-py3-none-any.whl", hash = "sha256:7a974427f6e119197f670fbbbeae7bef749a6c14e793db934baefc1b5f03efde"},
-    {file = "tomlkit-0.13.2.tar.gz", hash = "sha256:fff5fe59a87295b278abd31bec92c15d9bc4a06885ab12bcea52c71119392e79"},
+    {file = "tomlrt-2.2.9-py3-none-any.whl", hash = "sha256:96c40323ef0aae8b934b59f7dd7932580b21976b6e08e38f959425778702f6a4"},
+    {file = "tomlrt-2.2.9.tar.gz", hash = "sha256:448023de1ba3ae2de02edcc9e16b6697a3e3d9ddf920f6c6ad9e7f7a7b50317d"},
 ]
 
 [[package]]
@@ -1280,4 +1280,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "44cf5293b33b9b3a066ec2446722770d1845867804f3991548bb4a6a082325ee"
+content-hash = "d3b1f5560593dbd40f7435b421b5538fc0360d71bda65505212c711633976cc6"
